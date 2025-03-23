@@ -1,7 +1,7 @@
 // pages/_app.js
 import "@/styles/globals.css";
 import { SessionProvider } from "next-auth/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 // Only import in non-production as validation only runs on the server
 const validateEnv = process.env.NODE_ENV !== 'production' 
@@ -13,7 +13,6 @@ if (typeof window === 'undefined') {
   validateEnv();
 }
 
-<<<<<<< HEAD
 // Responsive wrapper component
 const AppWrapper = ({ children }) => {
   const [isMobileViewportSet, setIsMobileViewportSet] = useState(false);
@@ -47,10 +46,6 @@ const AppWrapper = ({ children }) => {
     }
   }, [deviceType]);
 
-=======
-// Simple auth wrapper component
-const AuthWrapper = ({ children }) => {
->>>>>>> parent of 9a33e93 (updated for mobile responsive implementation)
   return <>{children}</>;
 };
 
@@ -64,9 +59,9 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 
   return (
     <SessionProvider session={session}>
-      <AuthWrapper>
+      <AppWrapper>
         <Component {...pageProps} />
-      </AuthWrapper>
+      </AppWrapper>
     </SessionProvider>
   );
 }
