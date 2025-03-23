@@ -1,0 +1,189 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id         String   @id @default(uuid())
+  name       String
+  domain     String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  // Relations
+  conveyancers Conveyancer[]
+  matters      Matter[]
+  clients      Client[]
+  properties   Property[]
+  todos        Todo[]
+  documents    Document[]
+  auditLogs    MatterAuditLog[]
+}
+
+model Conveyancer {
+  id            String   @id @default(uuid())
+  tenantId      String
+  name          String
+  email         String   @unique
+  password_hash String
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  // Relations
+  tenant        Tenant           @relation(fields: [tenantId], references: [id])
+  matters       Matter[]
+  todos         Todo[]
+  documents     Document[]
+  passwordReset PasswordReset[]
+  auditLogs     MatterAuditLog[]
+  properties    Property[]
+}
+
+model Client {
+  id                String   @id @default(uuid())
+  tenantId          String
+  name              String
+  email             String
+  phone             String?
+  property          String?
+  identity_verified Boolean  @default(false)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  // Relations
+  tenant  Tenant   @relation(fields: [tenantId], references: [id])
+  buyers  Matter[] @relation("Buyer")
+  sellers Matter[] @relation("Seller")
+}
+
+model Property {
+  id            String   @id @default(uuid())
+  tenantId      String
+  conveyancerId String
+  address       String
+  status        String // "Available", "Pending", "Sold"
+  listing_price Float?
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  // Relations
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+  conveyancer Conveyancer @relation(fields: [conveyancerId], references: [id])
+  matters     Matter[]
+}
+
+model Matter {
+  id              String    @id @default(uuid())
+  tenantId        String
+  conveyancerId   String
+  propertyId      String
+  type            String // "Sale", "Purchase", "Transfer", etc.
+  date            DateTime
+  settlement_date DateTime?
+  buyerId         String?
+  sellerId        String?
+  amount          Float
+  status          String // "Pending", "Completed", "Cancelled"
+  archived_at     DateTime?
+  created_at      DateTime  @default(now())
+  updated_at      DateTime  @updatedAt
+
+  // Relations
+  tenant      Tenant           @relation(fields: [tenantId], references: [id])
+  conveyancer Conveyancer      @relation(fields: [conveyancerId], references: [id])
+  property    Property         @relation(fields: [propertyId], references: [id])
+  buyer       Client?          @relation("Buyer", fields: [buyerId], references: [id])
+  seller      Client?          @relation("Seller", fields: [sellerId], references: [id])
+  documents   Document[]
+  contracts   Contract[]
+  todos       Todo[]
+  auditLogs   MatterAuditLog[]
+}
+
+model Contract {
+  id         String   @id @default(uuid())
+  matterId   String
+  file_path  String
+  version    Int
+  created_at DateTime @default(now())
+
+  // Relations
+  matter Matter @relation(fields: [matterId], references: [id])
+}
+
+model Todo {
+  id            String    @id @default(uuid())
+  tenantId      String
+  conveyancerId String
+  matterId      String?
+  title         String
+  description   String?
+  priority      String // "HIGH", "MEDIUM", "LOW"
+  dueDate       DateTime?
+  completed     Boolean   @default(false)
+  reminderSent  Boolean   @default(false)
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  // Relations
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+  conveyancer Conveyancer @relation(fields: [conveyancerId], references: [id])
+  matter      Matter?     @relation(fields: [matterId], references: [id])
+}
+
+model MatterAuditLog {
+  id         String   @id @default(uuid())
+  matterId   String
+  userId     String
+  tenantId   String
+  action     String
+  details    String // JSON string
+  created_at DateTime @default(now())
+
+  // Relations
+  matter Matter      @relation(fields: [matterId], references: [id])
+  user   Conveyancer @relation(fields: [userId], references: [id])
+  tenant Tenant      @relation(fields: [tenantId], references: [id])
+}
+
+model PasswordReset {
+  id            String   @id @default(uuid())
+  conveyancerId String
+  token         String   @unique
+  expires       DateTime
+  created_at    DateTime @default(now())
+
+  // Relations
+  conveyancer Conveyancer @relation(fields: [conveyancerId], references: [id])
+}
+
+// Updated Document model in prisma/schema.prisma
+// Add this to your existing schema.prisma file
+
+model Document {
+  id            String   @id @default(uuid())
+  matterId      String
+  tenantId      String
+  conveyancerId String
+  name          String
+  file_path     String
+  uploaded_at   DateTime @default(now())
+  file_size     Int? // Size in bytes
+  file_type     String? // MIME type
+  category      String   @default("GENERAL") // GENERAL, CONTRACT, CORRESPONDENCE, IDENTIFICATION, FINANCIAL, LEGAL
+  version       Int      @default(1)
+  original_id   String? // ID of the original document if this is a version
+  description   String? // Optional description of the document
+
+  // Relations
+  matter      Matter      @relation(fields: [matterId], references: [id])
+  tenant      Tenant      @relation(fields: [tenantId], references: [id])
+  conveyancer Conveyancer @relation(fields: [conveyancerId], references: [id])
+  versions    Document[]  @relation("DocumentVersions")
+  parent      Document?   @relation("DocumentVersions", fields: [original_id], references: [id])
+}

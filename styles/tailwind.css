@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Extending Tailwind Components */
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded-md transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-blue-500;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-700 text-white hover:bg-gray-500;
+  }
+
+  .card {
+    @apply bg-white shadow-md rounded-lg p-4;
+  }
+
+  .modal {
+    @apply fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50;
+  }
+
+  .modal-content {
+    @apply bg-white p-6 rounded-lg shadow-lg w-1/3;
+  }
+}

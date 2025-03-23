@@ -1,0 +1,10 @@
+/node_modules
+/.next
+.DS_Store
+components/.DS_Store
+.DS_Store
+.DS_Store
+package-lock.json
+package.json
+.DS_Store
+.DS_Store
