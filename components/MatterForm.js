@@ -4,9 +4,11 @@ import { useSession } from "next-auth/react";
 import { Input } from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
+import { useIsMobile } from "@/utils/useResponsive";
 
 const MatterForm = ({ matter, onClose, onSave, isEditing = false }) => {
   const { data: session } = useSession();
+  const isMobile = useIsMobile(); // Use the fixed hook
   const [formData, setFormData] = useState({
     type: "Purchase",
     date: new Date().toISOString().split('T')[0],
@@ -180,7 +182,8 @@ const MatterForm = ({ matter, onClose, onSave, isEditing = false }) => {
       isOpen={true} 
       onClose={onClose}
       title={isEditing ? "Edit Matter" : "Add New Matter"}
-      size="lg" 
+      size={isMobile ? "full" : "lg"}
+      fullscreenOnMobile={isMobile}
     >
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -189,8 +192,8 @@ const MatterForm = ({ matter, onClose, onSave, isEditing = false }) => {
       )}
 
       <form onSubmit={handleSubmit} className="w-full">
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className={isMobile ? "space-y-3" : "space-y-4"}>
+          <div className={isMobile ? "grid grid-cols-1 gap-3" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
             <div>
               <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
                 Transaction Type<span className="text-red-500">*</span>
@@ -270,7 +273,7 @@ const MatterForm = ({ matter, onClose, onSave, isEditing = false }) => {
             )}
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={isMobile ? "grid grid-cols-1 gap-3" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
             <div>
               <label htmlFor="buyerId" className="block text-sm font-medium text-gray-700 mb-1">
                 Buyer {formData.type === "Purchase" && <span className="text-red-500">*</span>}

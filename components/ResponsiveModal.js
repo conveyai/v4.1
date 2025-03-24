@@ -1,7 +1,9 @@
+// components/ResponsiveModal.js
 import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { useIsMobile } from "@/utils/useResponsive";
 
 const ResponsiveModal = ({ 
   isOpen, 
@@ -16,25 +18,11 @@ const ResponsiveModal = ({
   className
 }) => {
   const [isMounted, setIsMounted] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const localIsMobile = useIsMobile(); // Use the hook directly
   const modalRef = useRef(null);
 
   useEffect(() => {
     setIsMounted(true);
-    
-    // Check if we're on a mobile device
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    // Initial check
-    checkMobile();
-
-    // Add event listener for window resize
-    window.addEventListener('resize', checkMobile);
-    
-    // Cleanup
-    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   useEffect(() => {
@@ -97,6 +85,9 @@ const ResponsiveModal = ({
 
   if (!isMounted || !isOpen) return null;
 
+  // Only use fullscreen on actual mobile devices if fullscreenOnMobile is true
+  const useFullscreen = localIsMobile && fullscreenOnMobile;
+
   const modal = (
     <div 
       className={cn(
@@ -110,7 +101,7 @@ const ResponsiveModal = ({
         ref={modalRef}
         className={cn(
           "bg-white relative rounded-lg shadow-xl overflow-hidden transition-all duration-300 transform",
-          isMobile && fullscreenOnMobile ? "w-full h-full rounded-none" : `w-full mx-4 ${sizeClasses[size]}`,
+          useFullscreen ? "w-full h-full rounded-none" : `w-full mx-4 ${sizeClasses[size]}`,
           isAnimating ? "scale-100 translate-y-0" : "scale-95 translate-y-4",
           className
         )}
@@ -136,7 +127,7 @@ const ResponsiveModal = ({
         <div 
           className={cn(
             "overflow-y-auto",
-            isMobile && fullscreenOnMobile ? "px-4 py-4 sm:p-6 max-h-[calc(100vh-8rem)]" : "p-4 sm:p-6 max-h-[calc(80vh-10rem)]"
+            useFullscreen ? "px-4 py-4 sm:p-6 max-h-[calc(100vh-8rem)]" : "p-4 sm:p-6 max-h-[calc(80vh-10rem)]"
           )}
         >
           {children}

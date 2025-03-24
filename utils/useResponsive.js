@@ -1,6 +1,4 @@
 // utils/useResponsive.js
-// This file needs to be created or updated to ensure consistent responsive behavior
-
 import { useState, useEffect } from "react";
 
 // Define standard breakpoints
@@ -14,8 +12,8 @@ export const breakpoints = {
 
 export function useResponsive() {
   const [windowSize, setWindowSize] = useState({
-    width: typeof window !== "undefined" ? window.innerWidth : 0,
-    height: typeof window !== "undefined" ? window.innerHeight : 0,
+    width: typeof window !== "undefined" ? window.innerWidth : 1024, // Default to desktop during SSR
+    height: typeof window !== "undefined" ? window.innerHeight : 768,
   });
 
   useEffect(() => {
@@ -55,7 +53,26 @@ export function useResponsive() {
 
 // Simple hook for the most common check
 export function useIsMobile() {
-  const { isMobile } = useResponsive();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    // Function to check if viewport width is mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < breakpoints.md);
+    };
+
+    // Call it once immediately
+    checkMobile();
+    
+    // Add event listener for window resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Clean up
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return isMobile;
 }
 

@@ -8,21 +8,19 @@ const Input = forwardRef(({
   type = "text", 
   error, 
   label,
-  fullWidth = true,
-  helperText,
   ...props 
 }, ref) => {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(); // Use the fixed hook
   
   return (
-    <div className={cn(
-      "mb-4", 
-      fullWidth ? "w-full" : ""
-    )}>
+    <div className="w-full">
       {label && (
         <label 
           htmlFor={props.id} 
-          className="block text-sm font-medium text-gray-700 mb-1"
+          className={cn(
+            "block text-sm font-medium text-gray-700 mb-1",
+            isMobile ? "text-base" : "text-sm"
+          )}
         >
           {label}
           {props.required && <span className="text-red-500 ml-1">*</span>}
@@ -35,19 +33,18 @@ const Input = forwardRef(({
           error
             ? "border-red-300 focus:border-red-300 focus:ring-red-200 text-red-900 placeholder-red-300"
             : "border-gray-300 focus:border-blue-300 focus:ring-blue-200",
+          isMobile ? "text-base" : "text-sm",
           className
         )}
         ref={ref}
         {...props}
       />
       {error && (
-        <p className="mt-1 text-sm text-red-600">
+        <p className={cn(
+          "mt-1 text-red-600",
+          isMobile ? "text-sm" : "text-xs"
+        )}>
           {error}
-        </p>
-      )}
-      {helperText && !error && (
-        <p className="mt-1 text-sm text-gray-500">
-          {helperText}
         </p>
       )}
     </div>

@@ -1,3 +1,4 @@
+// components/ClientForm.js
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -5,7 +6,7 @@ import Modal from "@/components/ui/Modal";
 import { useIsMobile } from "@/utils/useResponsive";
 
 const ClientForm = ({ client, onClose, onSave }) => {
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobile(); // Use the fixed hook
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -137,7 +138,7 @@ const ClientForm = ({ client, onClose, onSave }) => {
       onClose={onClose}
       title={client ? "Edit Client" : "Add New Client"}
       fullscreenOnMobile={isMobile}
-      size="md"
+      size={isMobile ? "full" : "md"}
     >
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -152,7 +153,7 @@ const ClientForm = ({ client, onClose, onSave }) => {
       )}
 
       <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
+        <div className={isMobile ? "space-y-3" : "space-y-4"}>
           <Input
             id="name"
             label="Client Name"

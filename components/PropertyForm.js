@@ -1,7 +1,9 @@
 // components/PropertyForm.js
 import { useState, useEffect } from "react";
+import { useIsMobile } from "@/utils/useResponsive";
 
 const PropertyForm = ({ property, onClose, onSave }) => {
+  const isMobile = useIsMobile(); // Use the fixed hook
   const [formData, setFormData] = useState({
     address: "",
     listing_price: "",
@@ -86,8 +88,7 @@ const PropertyForm = ({ property, onClose, onSave }) => {
         }
         throw new Error(errorMessage);
       }
-      
-      // Only parse response as JSON if it was successful
+// Only parse response as JSON if it was successful
       const savedProperty = await response.json();
       
       // Call onSave with the saved property
@@ -109,7 +110,7 @@ const PropertyForm = ({ property, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md overflow-hidden">
+      <div className={`bg-white rounded-lg shadow-lg overflow-hidden ${isMobile ? "w-full h-full" : "w-full max-w-md"}`}>
         <div className="p-4 border-b flex justify-between items-center">
           <h2 className="text-xl font-bold">
             {property ? "Edit Property" : "Add Property"}
@@ -123,14 +124,14 @@ const PropertyForm = ({ property, onClose, onSave }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
+        <form onSubmit={handleSubmit} className={isMobile ? "p-4" : "p-6"}>
           {error && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
               {error}
             </div>
           )}
 
-          <div className="space-y-4">
+          <div className={isMobile ? "space-y-3" : "space-y-4"}>
             <div>
               <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
                 Property Address
@@ -207,3 +208,4 @@ const PropertyForm = ({ property, onClose, onSave }) => {
 };
 
 export default PropertyForm;
+      
