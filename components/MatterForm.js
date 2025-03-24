@@ -1,4 +1,3 @@
-// components/MatterForm.js
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Input } from "@/components/ui/Input";
@@ -8,7 +7,7 @@ import { useIsMobile } from "@/utils/useResponsive";
 
 const MatterForm = ({ matter, onClose, onSave, isEditing = false }) => {
   const { data: session } = useSession();
-  const isMobile = useIsMobile(); // Use the fixed hook
+  const isMobile = useIsMobile();
   const [formData, setFormData] = useState({
     type: "Purchase",
     date: new Date().toISOString().split('T')[0],
@@ -30,6 +29,8 @@ const MatterForm = ({ matter, onClose, onSave, isEditing = false }) => {
   // Initialize form with matter data if editing
   useEffect(() => {
     if (matter && isEditing) {
+      console.log("Initializing form with matter data:", matter);
+      
       setFormData({
         type: matter.type || "Purchase",
         date: matter.date || new Date().toISOString().split('T')[0],
@@ -47,23 +48,41 @@ const MatterForm = ({ matter, onClose, onSave, isEditing = false }) => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
+      setError(null);
+      
       try {
+        console.log("Fetching properties and clients...");
+        
         // Fetch properties
         const propertiesResponse = await fetch('/api/properties');
         if (!propertiesResponse.ok) {
-          throw new Error('Failed to fetch properties');
+          throw new Error(`Failed to fetch properties: ${propertiesResponse.statusText}`);
         }
         const propertiesData = await propertiesResponse.json();
 
         // Fetch clients
         const clientsResponse = await fetch('/api/clients');
         if (!clientsResponse.ok) {
-          throw new Error('Failed to fetch clients');
+          throw new Error(`Failed to fetch clients: ${clientsResponse.statusText}`);
         }
         const clientsData = await clientsResponse.json();
 
+        console.log("Loaded properties:", propertiesData.length);
+        console.log("Loaded clients:", clientsData.length);
+        
         setProperties(propertiesData);
         setClients(clientsData);
+        
+        // If we're editing and have a matter, confirm data is loaded correctly
+        if (matter && isEditing) {
+          console.log("Confirming matter data with loaded records:");
+          console.log("Property ID in matter:", matter.propertyId);
+          console.log("Property exists in loaded data:", propertiesData.some(p => p.id === matter.propertyId));
+          console.log("Buyer ID in matter:", matter.buyerId);
+          console.log("Buyer exists in loaded data:", clientsData.some(c => c.id === matter.buyerId));
+          console.log("Seller ID in matter:", matter.sellerId);
+          console.log("Seller exists in loaded data:", clientsData.some(c => c.id === matter.sellerId));
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
         setError('Failed to load required data. Please try again.');
@@ -75,7 +94,7 @@ const MatterForm = ({ matter, onClose, onSave, isEditing = false }) => {
     if (session) {
       fetchData();
     }
-  }, [session]);
+  }, [session, matter, isEditing]);
 
   const validateForm = () => {
     const errors = {};
@@ -142,6 +161,8 @@ const MatterForm = ({ matter, onClose, onSave, isEditing = false }) => {
       // Determine if creating or updating
       const url = isEditing ? `/api/matters/${matter.id}` : "/api/matters";
       const method = isEditing ? "PUT" : "POST";
+      
+      console.log(`Submitting ${method} request to ${url} with data:`, formData);
 
       const response = await fetch(url, {
         method,
@@ -169,19 +190,32 @@ const MatterForm = ({ matter, onClose, onSave, isEditing = false }) => {
 
   if (loading) {
     return (
-      <Modal isOpen={true} onClose={onClose} title={isEditing ? "Edit Matter" : "Add New Matter"} size="lg">
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      </Modal>
+      <div className="p-6 flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
     );
   }
 
  return (
   <div className="p-6">
+    {!matter && isEditing && (
+      <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+        Matter data is missing. Please try again.
+      </div>
+    )}
+
     {error && (
       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-        {error}
+        <p>{error}</p>
+        {process.env.NODE_ENV !== 'production' && (
+          <details className="mt-2">
+            <summary className="text-sm cursor-pointer">Debug Information</summary>
+            <pre className="mt-2 p-2 bg-red-50 rounded text-xs overflow-auto">
+              Matter provided: {matter ? 'Yes' : 'No'}
+              {matter && JSON.stringify(matter, null, 2)}
+            </pre>
+          </details>
+        )}
       </div>
     )}
 

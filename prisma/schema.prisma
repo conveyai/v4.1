@@ -103,6 +103,7 @@ model Matter {
   contracts   Contract[]
   todos       Todo[]
   auditLogs   MatterAuditLog[]
+  titleSearches    TitleSearch[]
 }
 
 model Contract {
@@ -186,4 +187,25 @@ model Document {
   conveyancer Conveyancer @relation(fields: [conveyancerId], references: [id])
   versions    Document[]  @relation("DocumentVersions")
   parent      Document?   @relation("DocumentVersions", fields: [original_id], references: [id])
+}
+
+//title Search model
+model TitleSearch {
+  id               String   @id @default(uuid())
+  matterId         String
+  tenantId         String
+  orderId          String
+  folioIdentifier  String
+  productCode      String
+  status           String
+  document         String?
+  details          String?  // JSON string of full response details
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  matter           Matter   @relation(fields: [matterId], references: [id])
+
+  @@index([matterId])
+  @@index([tenantId])
+  @@index([orderId])
 }
