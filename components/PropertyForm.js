@@ -108,103 +108,89 @@ const PropertyForm = ({ property, onClose, onSave }) => {
     }
   };
 
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className={`bg-white rounded-lg shadow-lg overflow-hidden ${isMobile ? "w-full h-full" : "w-full max-w-md"}`}>
-        <div className="p-4 border-b flex justify-between items-center">
-          <h2 className="text-xl font-bold">
-            {property ? "Edit Property" : "Add Property"}
-          </h2>
-          <button 
-            onClick={onClose} 
-            className="text-gray-500 hover:text-gray-700"
-            type="button"
-          >
-            <span className="text-2xl">&times;</span>
-          </button>
+return (
+  <div className="p-6">
+    {error && (
+      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        {error}
+      </div>
+    )}
+
+    <form onSubmit={handleSubmit}>
+      <div className="space-y-4">
+        <div>
+          <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+            Property Address
+          </label>
+          <input
+            id="address"
+            name="address"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            value={formData.address}
+            onChange={handleChange}
+            placeholder="Enter full property address"
+            required
+          />
         </div>
 
-        <form onSubmit={handleSubmit} className={isMobile ? "p-4" : "p-6"}>
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-              {error}
-            </div>
-          )}
+        <div>
+          <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+            Status
+          </label>
+          <select
+            id="status"
+            name="status"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            value={formData.status}
+            onChange={handleChange}
+          >
+            <option value="Available">Available</option>
+            <option value="Pending">Pending</option>
+            <option value="Sold">Sold</option>
+          </select>
+        </div>
 
-          <div className={isMobile ? "space-y-3" : "space-y-4"}>
-            <div>
-              <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
-                Property Address
-              </label>
-              <input
-                id="address"
-                name="address"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                value={formData.address}
-                onChange={handleChange}
-                placeholder="Enter full property address"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-                Status
-              </label>
-              <select
-                id="status"
-                name="status"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                value={formData.status}
-                onChange={handleChange}
-              >
-                <option value="Available">Available</option>
-                <option value="Pending">Pending</option>
-                <option value="Sold">Sold</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="listing_price" className="block text-sm font-medium text-gray-700 mb-1">
-                Listing Price (Optional)
-              </label>
-              <input
-                id="listing_price"
-                name="listing_price"
-                type="number"
-                step="0.01"
-                min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                value={formData.listing_price}
-                onChange={handleChange}
-                placeholder="Enter listing price"
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Leave blank if price is not applicable
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-6 flex justify-end space-x-3">
-            <button
-              type="button"
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              onClick={onClose}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-              disabled={loading}
-            >
-              {loading ? "Saving..." : property ? "Update Property" : "Add Property"}
-            </button>
-          </div>
-        </form>
+        <div>
+          <label htmlFor="listing_price" className="block text-sm font-medium text-gray-700 mb-1">
+            Listing Price (Optional)
+          </label>
+          <input
+            id="listing_price"
+            name="listing_price"
+            type="number"
+            step="0.01"
+            min="0"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            value={formData.listing_price}
+            onChange={handleChange}
+            placeholder="Enter listing price"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Leave blank if price is not applicable
+          </p>
+        </div>
       </div>
-    </div>
-  );
+
+      <div className="mt-6 flex justify-end space-x-3">
+        <button
+          type="button"
+          className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          onClick={onClose}
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          disabled={loading}
+        >
+          {loading ? "Saving..." : property ? "Update Property" : "Add Property"}
+        </button>
+      </div>
+    </form>
+  </div>
+); 
+ 
 };
 
 export default PropertyForm;

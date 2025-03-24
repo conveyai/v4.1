@@ -8,7 +8,7 @@ import {
   CardContent,
   Badge,
 } from "@/components/ui";
-import { RefreshCw, Plus, Search, Filter } from "lucide-react";
+import { RefreshCw, Plus, Search, Filter, X } from "lucide-react";
 
 // Import responsive components
 import ResponsiveLayout from "@/components/ResponsiveLayout";
@@ -259,38 +259,40 @@ const MattersOverview = () => {
           </CardContent>
         </Card>
 
-        {selectedMatter && (
-          <ResponsiveModal
-            isOpen={true}
-            onClose={() => setSelectedMatter(null)}
-            title="Matter Details"
-            fullscreenOnMobile={true}
-            size="lg"
-          >
-            <MatterDetail 
-              matter={selectedMatter} 
-              onClose={() => setSelectedMatter(null)} 
-              onUpdate={fetchMatters}
-              isResponsive={true}
-            />
-          </ResponsiveModal>
-        )}
+{selectedMatter && (
+  // Use a direct div container instead of ResponsiveModal for Matter Details
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <MatterDetail 
+        matter={selectedMatter} 
+        onClose={() => setSelectedMatter(null)} 
+        onUpdate={fetchMatters}
+      />
+    </div>
+  </div>
+)}
 
-        {showAddForm && (
-          <ResponsiveModal
-            isOpen={true}
-            onClose={() => setShowAddForm(false)}
-            title="Add New Matter"
-            fullscreenOnMobile={true}
-            size="lg"
-          >
-            <MatterForm 
-              onClose={() => setShowAddForm(false)} 
-              onSave={handleMatterSave}
-              isResponsive={true}
-            />
-          </ResponsiveModal>
-        )}
+{showAddForm && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="p-4 border-b flex justify-between items-center">
+        <h2 className="text-xl font-bold">Add New Matter</h2>
+        <button 
+          onClick={() => setShowAddForm(false)} 
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <X size={24} />
+        </button>
+      </div>
+      <div className="overflow-y-auto flex-grow">
+        <MatterForm 
+          onClose={() => setShowAddForm(false)} 
+          onSave={handleMatterSave}
+        />
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </ResponsiveLayout>
   );

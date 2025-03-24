@@ -8,7 +8,7 @@ import {
   CardContent,
   Badge,
 } from "@/components/ui";
-import { RefreshCw, Plus, Search, Filter } from "lucide-react";
+import { RefreshCw, Plus, Search, Filter, X } from "lucide-react";
 
 // Import responsive components
 import ResponsiveLayout from "@/components/ResponsiveLayout";
@@ -237,46 +237,60 @@ const PropertiesOverview = () => {
           </CardContent>
         </Card>
 
-        {selectedProperty && (
-          <ResponsiveModal
-            isOpen={true}
-            onClose={() => setSelectedProperty(null)}
-            title="Property Details"
-            fullscreenOnMobile={true}
-            size="lg"
-          >
-            <PropertyDetail 
-              property={selectedProperty} 
-              onClose={() => setSelectedProperty(null)}
-              onEdit={() => {
-                setShowAddForm(true);
-              }}
-              onUpdate={fetchProperties}
-            />
-          </ResponsiveModal>
-        )}
+ {selectedProperty && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="p-4 border-b flex justify-between items-center">
+        <h2 className="text-xl font-bold">Property Details</h2>
+        <button 
+          onClick={() => setSelectedProperty(null)} 
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <X size={24} />
+        </button>
+      </div>
+      <div className="overflow-y-auto flex-grow">
+        <PropertyDetail 
+          property={selectedProperty} 
+          onClose={() => setSelectedProperty(null)}
+          onEdit={() => {
+            setShowAddForm(true);
+          }}
+          onUpdate={fetchProperties}
+        />
+      </div>
+    </div>
+  </div>
+)}
 
-        {showAddForm && (
-          <ResponsiveModal
-            isOpen={true}
-            onClose={() => {
-              setShowAddForm(false);
-              setSelectedProperty(null);
-            }}
-            title={selectedProperty ? "Edit Property" : "Add Property"}
-            fullscreenOnMobile={true}
-            size="md"
-          >
-            <PropertyForm 
-              property={selectedProperty}
-              onClose={() => {
-                setShowAddForm(false);
-                setSelectedProperty(null);
-              }} 
-              onSave={handlePropertySave}
-            />
-          </ResponsiveModal>
-        )}
+{showAddForm && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="p-4 border-b flex justify-between items-center">
+        <h2 className="text-xl font-bold">{selectedProperty ? "Edit Property" : "Add Property"}</h2>
+        <button 
+          onClick={() => {
+            setShowAddForm(false);
+            setSelectedProperty(null);
+          }} 
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <X size={24} />
+        </button>
+      </div>
+      <div className="overflow-y-auto flex-grow">
+        <PropertyForm 
+          property={selectedProperty}
+          onClose={() => {
+            setShowAddForm(false);
+            setSelectedProperty(null);
+          }} 
+          onSave={handlePropertySave}
+        />
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </ResponsiveLayout>
   );

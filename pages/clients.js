@@ -9,7 +9,7 @@ import {
   CardContent,
   Badge,
 } from "@/components/ui";
-import { RefreshCw, Plus, Search, CheckCircle, UserCheck, Edit } from "lucide-react";
+import { RefreshCw, Plus, Search, CheckCircle, UserCheck, Edit, filter, X } from "lucide-react";
 
 // Import responsive components
 import ResponsiveLayout from "@/components/ResponsiveLayout";
@@ -331,27 +331,34 @@ const ClientsOverview = () => {
           </CardContent>
         </Card>
 
-        {(showAddForm || selectedClient) && (
-          <ResponsiveModal
-            isOpen={true}
-            onClose={() => {
-              setShowAddForm(false);
-              setSelectedClient(null);
-            }}
-            title={selectedClient ? "Edit Client" : "Add New Client"}
-            fullscreenOnMobile={true}
-            size="md"
-          >
-            <ClientForm 
-              client={selectedClient} 
-              onClose={() => {
-                setShowAddForm(false);
-                setSelectedClient(null);
-              }} 
-              onSave={handleClientSave}
-            />
-          </ResponsiveModal>
-        )}
+{(showAddForm || selectedClient) && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="p-4 border-b flex justify-between items-center">
+        <h2 className="text-xl font-bold">{selectedClient ? "Edit Client" : "Add New Client"}</h2>
+        <button 
+          onClick={() => {
+            setShowAddForm(false);
+            setSelectedClient(null);
+          }} 
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <X size={24} />
+        </button>
+      </div>
+      <div className="overflow-y-auto flex-grow">
+        <ClientForm 
+          client={selectedClient} 
+          onClose={() => {
+            setShowAddForm(false);
+            setSelectedClient(null);
+          }} 
+          onSave={handleClientSave}
+        />
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </ResponsiveLayout>
   );

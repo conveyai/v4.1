@@ -133,89 +133,83 @@ const ClientForm = ({ client, onClose, onSave }) => {
   };
 
   return (
-    <Modal 
-      isOpen={true} 
-      onClose={onClose}
-      title={client ? "Edit Client" : "Add New Client"}
-      fullscreenOnMobile={isMobile}
-      size={isMobile ? "full" : "md"}
-    >
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <p className="font-medium">{error}</p>
-          {debugInfo && process.env.NODE_ENV !== 'production' && (
-            <details className="mt-2 text-xs">
-              <summary>Debug Information</summary>
-              <pre className="mt-2 whitespace-pre-wrap">{JSON.stringify(debugInfo, null, 2)}</pre>
-            </details>
-          )}
-        </div>
-      )}
+  <div className="p-6">
+    {error && (
+      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        <p className="font-medium">{error}</p>
+        {debugInfo && process.env.NODE_ENV !== 'production' && (
+          <details className="mt-2 text-xs">
+            <summary>Debug Information</summary>
+            <pre className="mt-2 whitespace-pre-wrap">{JSON.stringify(debugInfo, null, 2)}</pre>
+          </details>
+        )}
+      </div>
+    )}
 
-      <form onSubmit={handleSubmit}>
-        <div className={isMobile ? "space-y-3" : "space-y-4"}>
-          <Input
-            id="name"
-            label="Client Name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            placeholder="Full Name"
-            error={validationErrors.name}
-            required
-          />
-          
-          <Input
-            id="email"
-            label="Email"
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="email@example.com"
-            error={validationErrors.email}
-            required
-          />
-          
-          <Input
-            id="phone"
-            label="Phone Number"
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            placeholder="e.g. 0412 345 678"
-            error={validationErrors.phone}
-          />
-          
-          <Input
-            id="property"
-            label="Property Address"
-            name="property"
-            value={formData.property}
-            onChange={handleChange}
-            placeholder="Property Address (Optional)"
-          />
-        </div>
+    <form onSubmit={handleSubmit}>
+      <div className="space-y-4">
+        <Input
+          id="name"
+          label="Client Name"
+          name="name"
+          value={formData.name}
+          onChange={handleChange}
+          placeholder="Full Name"
+          error={validationErrors.name}
+          required
+        />
+        
+        <Input
+          id="email"
+          label="Email"
+          type="email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          placeholder="email@example.com"
+          error={validationErrors.email}
+          required
+        />
+        
+        <Input
+          id="phone"
+          label="Phone Number"
+          type="tel"
+          name="phone"
+          value={formData.phone}
+          onChange={handleChange}
+          placeholder="e.g. 0412 345 678"
+          error={validationErrors.phone}
+        />
+        
+        <Input
+          id="property"
+          label="Property Address"
+          name="property"
+          value={formData.property}
+          onChange={handleChange}
+          placeholder="Property Address (Optional)"
+        />
+      </div>
 
-        <div className="mt-6 flex justify-end space-x-3">
-          <Button 
-            type="button"
-            variant="outline"
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={saving}
-          >
-            {saving ? "Saving..." : client ? "Update Client" : "Save Client"}
-          </Button>
-        </div>
-      </form>
-    </Modal>
-  );
+      <div className="mt-6 flex justify-end space-x-3">
+        <Button 
+          type="button"
+          variant="outline"
+          onClick={onClose}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={saving}
+        >
+          {saving ? "Saving..." : client ? "Update Client" : "Save Client"}
+        </Button>
+      </div>
+    </form>
+  </div>
+);
 };
 
 export default ClientForm;

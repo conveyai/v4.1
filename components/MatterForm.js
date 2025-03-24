@@ -177,188 +177,182 @@ const MatterForm = ({ matter, onClose, onSave, isEditing = false }) => {
     );
   }
 
-  return (
-    <Modal 
-      isOpen={true} 
-      onClose={onClose}
-      title={isEditing ? "Edit Matter" : "Add New Matter"}
-      size={isMobile ? "full" : "lg"}
-      fullscreenOnMobile={isMobile}
-    >
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
+ return (
+  <div className="p-6">
+    {error && (
+      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        {error}
+      </div>
+    )}
 
-      <form onSubmit={handleSubmit} className="w-full">
-        <div className={isMobile ? "space-y-3" : "space-y-4"}>
-          <div className={isMobile ? "grid grid-cols-1 gap-3" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
-            <div>
-              <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-                Transaction Type<span className="text-red-500">*</span>
-              </label>
-              <select
-                id="type"
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                className="px-3 py-2 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-300 focus:ring-blue-200 bg-white"
-                required
-              >
-                <option value="Purchase">Purchase</option>
-                <option value="Sale">Sale</option>
-              </select>
-              {validationErrors.type && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.type}</p>
-              )}
-            </div>
-
-            <Input
-              id="date"
-              label="Transaction Date"
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
-              error={validationErrors.date}
-              required
-            />
-          </div>
-
-          <Input
-            id="settlement_date"
-            label="Settlement Date"
-            type="date"
-            name="settlement_date"
-            value={formData.settlement_date}
-            onChange={handleChange}
-            error={validationErrors.settlement_date}
-            placeholder="Settlement date (if known)"
-          />
-
-          <Input
-            id="amount"
-            label="Transaction Amount ($)"
-            type="number"
-            name="amount"
-            value={formData.amount}
-            onChange={handleChange}
-            placeholder="e.g. 750000.00"
-            error={validationErrors.amount}
-            required
-          />
-          
+    <form onSubmit={handleSubmit} className="w-full">
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label htmlFor="propertyId" className="block text-sm font-medium text-gray-700 mb-1">
-              Property<span className="text-red-500">*</span>
+            <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
+              Transaction Type<span className="text-red-500">*</span>
             </label>
             <select
-              id="propertyId"
-              name="propertyId"
-              value={formData.propertyId}
+              id="type"
+              name="type"
+              value={formData.type}
               onChange={handleChange}
               className="px-3 py-2 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-300 focus:ring-blue-200 bg-white"
               required
             >
-              <option value="">Select a property</option>
-              {properties.map(property => (
-                <option key={property.id} value={property.id}>
-                  {property.address} {property.listing_price ? `($${parseFloat(property.listing_price).toLocaleString()})` : ''}
+              <option value="Purchase">Purchase</option>
+              <option value="Sale">Sale</option>
+            </select>
+            {validationErrors.type && (
+              <p className="mt-1 text-sm text-red-600">{validationErrors.type}</p>
+            )}
+          </div>
+
+          <Input
+            id="date"
+            label="Transaction Date"
+            type="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            error={validationErrors.date}
+            required
+          />
+        </div>
+
+        <Input
+          id="settlement_date"
+          label="Settlement Date"
+          type="date"
+          name="settlement_date"
+          value={formData.settlement_date}
+          onChange={handleChange}
+          error={validationErrors.settlement_date}
+          placeholder="Settlement date (if known)"
+        />
+
+        <Input
+          id="amount"
+          label="Transaction Amount ($)"
+          type="number"
+          name="amount"
+          value={formData.amount}
+          onChange={handleChange}
+          placeholder="e.g. 750000.00"
+          error={validationErrors.amount}
+          required
+        />
+        
+        <div>
+          <label htmlFor="propertyId" className="block text-sm font-medium text-gray-700 mb-1">
+            Property<span className="text-red-500">*</span>
+          </label>
+          <select
+            id="propertyId"
+            name="propertyId"
+            value={formData.propertyId}
+            onChange={handleChange}
+            className="px-3 py-2 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-300 focus:ring-blue-200 bg-white"
+            required
+          >
+            <option value="">Select a property</option>
+            {properties.map(property => (
+              <option key={property.id} value={property.id}>
+                {property.address} {property.listing_price ? `($${parseFloat(property.listing_price).toLocaleString()})` : ''}
+              </option>
+            ))}
+          </select>
+          {validationErrors.propertyId && (
+            <p className="mt-1 text-sm text-red-600">{validationErrors.propertyId}</p>
+          )}
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label htmlFor="buyerId" className="block text-sm font-medium text-gray-700 mb-1">
+              Buyer {formData.type === "Purchase" && <span className="text-red-500">*</span>}
+            </label>
+            <select
+              id="buyerId"
+              name="buyerId"
+              value={formData.buyerId}
+              onChange={handleChange}
+              className="px-3 py-2 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-300 focus:ring-blue-200 bg-white"
+              required={formData.type === "Purchase"}
+            >
+              <option value="">Select a buyer</option>
+              {clients.map(client => (
+                <option key={client.id} value={client.id}>
+                  {client.name} ({client.email})
                 </option>
               ))}
             </select>
-            {validationErrors.propertyId && (
-              <p className="mt-1 text-sm text-red-600">{validationErrors.propertyId}</p>
+            {validationErrors.buyerId && (
+              <p className="mt-1 text-sm text-red-600">{validationErrors.buyerId}</p>
             )}
           </div>
           
-          <div className={isMobile ? "grid grid-cols-1 gap-3" : "grid grid-cols-1 md:grid-cols-2 gap-4"}>
-            <div>
-              <label htmlFor="buyerId" className="block text-sm font-medium text-gray-700 mb-1">
-                Buyer {formData.type === "Purchase" && <span className="text-red-500">*</span>}
-              </label>
-              <select
-                id="buyerId"
-                name="buyerId"
-                value={formData.buyerId}
-                onChange={handleChange}
-                className="px-3 py-2 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-300 focus:ring-blue-200 bg-white"
-                required={formData.type === "Purchase"}
-              >
-                <option value="">Select a buyer</option>
-                {clients.map(client => (
-                  <option key={client.id} value={client.id}>
-                    {client.name} ({client.email})
-                  </option>
-                ))}
-              </select>
-              {validationErrors.buyerId && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.buyerId}</p>
-              )}
-            </div>
-            
-            <div>
-              <label htmlFor="sellerId" className="block text-sm font-medium text-gray-700 mb-1">
-                Seller {formData.type === "Sale" && <span className="text-red-500">*</span>}
-              </label>
-              <select
-                id="sellerId"
-                name="sellerId"
-                value={formData.sellerId}
-                onChange={handleChange}
-                className="px-3 py-2 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-300 focus:ring-blue-200 bg-white"
-                required={formData.type === "Sale"}
-              >
-                <option value="">Select a seller</option>
-                {clients.map(client => (
-                  <option key={client.id} value={client.id}>
-                    {client.name} ({client.email})
-                  </option>
-                ))}
-              </select>
-              {validationErrors.sellerId && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.sellerId}</p>
-              )}
-            </div>
-          </div>
-          
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
-              Status
+            <label htmlFor="sellerId" className="block text-sm font-medium text-gray-700 mb-1">
+              Seller {formData.type === "Sale" && <span className="text-red-500">*</span>}
             </label>
             <select
-              id="status"
-              name="status"
-              value={formData.status}
+              id="sellerId"
+              name="sellerId"
+              value={formData.sellerId}
               onChange={handleChange}
               className="px-3 py-2 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-300 focus:ring-blue-200 bg-white"
+              required={formData.type === "Sale"}
             >
-              <option value="Pending">Pending</option>
-              <option value="Completed">Completed</option>
-              <option value="Cancelled">Cancelled</option>
+              <option value="">Select a seller</option>
+              {clients.map(client => (
+                <option key={client.id} value={client.id}>
+                  {client.name} ({client.email})
+                </option>
+              ))}
             </select>
+            {validationErrors.sellerId && (
+              <p className="mt-1 text-sm text-red-600">{validationErrors.sellerId}</p>
+            )}
           </div>
         </div>
-
-        <div className="mt-6 flex justify-end space-x-3">
-          <Button 
-            type="button"
-            variant="outline"
-            onClick={onClose}
+        
+        <div>
+          <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+            Status
+          </label>
+          <select
+            id="status"
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="px-3 py-2 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-300 focus:ring-blue-200 bg-white"
           >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={saving}
-          >
-            {saving ? "Saving..." : isEditing ? "Update Matter" : "Create Matter"}
-          </Button>
+            <option value="Pending">Pending</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
         </div>
-      </form>
-    </Modal>
-  );
+      </div>
+
+      <div className="mt-6 flex justify-end space-x-3">
+        <Button 
+          type="button"
+          variant="outline"
+          onClick={onClose}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={saving}
+        >
+          {saving ? "Saving..." : isEditing ? "Update Matter" : "Create Matter"}
+        </Button>
+      </div>
+    </form>
+  </div>
+);
 };
 
 export default MatterForm;

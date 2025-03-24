@@ -137,113 +137,109 @@ const TodoForm = ({ todo, onClose, onSave, matterId }) => {
     }
   };
 
-  return (
-    <Modal 
-      isOpen={true} 
-      onClose={onClose}
-      title={todo ? "Edit Todo" : "Add New Todo"}
-    >
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
-        </div>
-      )}
+ return (
+  <div className="p-6">
+    {error && (
+      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+        {error}
+      </div>
+    )}
 
-      <form onSubmit={handleSubmit}>
-        <div className="space-y-4">
-          <Input
-            id="title"
-            label="Title"
-            name="title"
-            value={formData.title}
+    <form onSubmit={handleSubmit}>
+      <div className="space-y-4">
+        <Input
+          id="title"
+          label="Title"
+          name="title"
+          value={formData.title}
+          onChange={handleChange}
+          placeholder="What needs to be done?"
+          error={validationErrors.title}
+          required
+        />
+        
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+            Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
             onChange={handleChange}
-            placeholder="What needs to be done?"
-            error={validationErrors.title}
-            required
+            placeholder="Add details (optional)"
+            className="px-3 py-2 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-300 focus:ring-blue-200 h-24"
           />
-          
-          <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Add details (optional)"
-              className="px-3 py-2 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-300 focus:ring-blue-200 h-24"
-            />
-          </div>
-          
-          <Input
-            id="dueDate"
-            label="Due Date"
-            type="date"
-            name="dueDate"
-            value={formData.dueDate}
+        </div>
+        
+        <Input
+          id="dueDate"
+          label="Due Date"
+          type="date"
+          name="dueDate"
+          value={formData.dueDate}
+          onChange={handleChange}
+          error={validationErrors.dueDate}
+        />
+        
+        <div>
+          <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
+            Priority
+          </label>
+          <select
+            id="priority"
+            name="priority"
+            value={formData.priority}
             onChange={handleChange}
-            error={validationErrors.dueDate}
-          />
-          
+            className="px-3 py-2 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-300 focus:ring-blue-200"
+          >
+            <option value="HIGH">High</option>
+            <option value="MEDIUM">Medium</option>
+            <option value="LOW">Low</option>
+          </select>
+        </div>
+        
+        {!matterId && (
           <div>
-            <label htmlFor="priority" className="block text-sm font-medium text-gray-700 mb-1">
-              Priority
+            <label htmlFor="matterId" className="block text-sm font-medium text-gray-700 mb-1">
+              Related Matter (Optional)
             </label>
             <select
-              id="priority"
-              name="priority"
-              value={formData.priority}
+              id="matterId"
+              name="matterId"
+              value={formData.matterId || ""}
               onChange={handleChange}
               className="px-3 py-2 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-300 focus:ring-blue-200"
             >
-              <option value="HIGH">High</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="LOW">Low</option>
+              <option value="">No related matter</option>
+              {matters.map(matter => (
+                <option key={matter.id} value={matter.id}>
+                  {matter.property?.address || `Matter #${matter.id.slice(0, 6)}`}
+                </option>
+              ))}
             </select>
           </div>
-          
-          {!matterId && (
-            <div>
-              <label htmlFor="matterId" className="block text-sm font-medium text-gray-700 mb-1">
-                Related Matter (Optional)
-              </label>
-              <select
-                id="matterId"
-                name="matterId"
-                value={formData.matterId || ""}
-                onChange={handleChange}
-                className="px-3 py-2 w-full border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:border-blue-300 focus:ring-blue-200"
-              >
-                <option value="">No related matter</option>
-                {matters.map(matter => (
-                  <option key={matter.id} value={matter.id}>
-                    {matter.property?.address || `Matter #${matter.id.slice(0, 6)}`}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-        </div>
+        )}
+      </div>
 
-        <div className="mt-6 flex justify-end space-x-3">
-          <Button 
-            type="button"
-            variant="outline"
-            onClick={onClose}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="submit"
-            disabled={saving}
-          >
-            {saving ? "Saving..." : todo ? "Update Todo" : "Add Todo"}
-          </Button>
-        </div>
-      </form>
-    </Modal>
-  );
+      <div className="mt-6 flex justify-end space-x-3">
+        <Button 
+          type="button"
+          variant="outline"
+          onClick={onClose}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          disabled={saving}
+        >
+          {saving ? "Saving..." : todo ? "Update Todo" : "Add Todo"}
+        </Button>
+      </div>
+    </form>
+  </div>
+);
 };
 
 export default TodoForm;

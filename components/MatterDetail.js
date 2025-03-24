@@ -1,5 +1,5 @@
 // components/MatterDetail.js
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   X, 
   Archive, 
@@ -12,11 +12,14 @@ import {
 } from "lucide-react";
 import { Button, Badge } from "@/components/ui";
 import MatterDocumentsTab from "./MatterDocumentsTab";
+import { useIsMobile } from "@/utils/useResponsive";
 
 const MatterDetail = ({ matter, onClose, onUpdate, isArchived = false }) => {
   const [activeTab, setActiveTab] = useState("details");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Make sure we detect mobile/desktop properly
+  const isMobile = useIsMobile();
 
   const handleArchive = async () => {
     setLoading(true);
@@ -91,7 +94,7 @@ const MatterDetail = ({ matter, onClose, onUpdate, isArchived = false }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+      <div className={`bg-white rounded-lg shadow-lg ${isMobile ? 'w-full h-full' : 'w-full max-w-4xl max-h-[90vh]'} overflow-hidden flex flex-col`}>
         <div className="p-4 border-b flex justify-between items-center">
           <h2 className="text-xl font-bold">Matter Details</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">

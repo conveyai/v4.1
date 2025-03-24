@@ -8,7 +8,7 @@ import {
   CardContent,
   Badge,
 } from "@/components/ui";
-import { RefreshCw, Plus, Search, Filter, CheckSquare, Calendar, Clock, AlertTriangle } from "lucide-react";
+import { RefreshCw, Plus, Search, Filter, CheckSquare, Calendar, Clock, AlertTriangle, X } from "lucide-react";
 
 // Import responsive components
 import ResponsiveLayout from "@/components/ResponsiveLayout";
@@ -427,36 +427,50 @@ const TodosPage = () => {
           </CardContent>
         </Card>
 
-        {showAddForm && (
-          <ResponsiveModal
-            isOpen={true}
-            onClose={() => setShowAddForm(false)}
-            title="Add New Todo"
-            fullscreenOnMobile={true}
-            size="md"
-          >
-            <TodoForm 
-              onClose={() => setShowAddForm(false)} 
-              onSave={handleAddTodo}
-            />
-          </ResponsiveModal>
-        )}
+{showAddForm && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="p-4 border-b flex justify-between items-center">
+        <h2 className="text-xl font-bold">Add New Todo</h2>
+        <button 
+          onClick={() => setShowAddForm(false)} 
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <X size={24} />
+        </button>
+      </div>
+      <div className="overflow-y-auto flex-grow">
+        <TodoForm 
+          onClose={() => setShowAddForm(false)} 
+          onSave={handleAddTodo}
+        />
+      </div>
+    </div>
+  </div>
+)}
 
-        {editingTodo && (
-          <ResponsiveModal
-            isOpen={true}
-            onClose={() => setEditingTodo(null)}
-            title="Edit Todo"
-            fullscreenOnMobile={true}
-            size="md"
-          >
-            <TodoForm 
-              todo={editingTodo}
-              onClose={() => setEditingTodo(null)} 
-              onSave={handleUpdateTodo}
-            />
-          </ResponsiveModal>
-        )}
+{editingTodo && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white rounded-lg shadow-lg w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="p-4 border-b flex justify-between items-center">
+        <h2 className="text-xl font-bold">Edit Todo</h2>
+        <button 
+          onClick={() => setEditingTodo(null)} 
+          className="text-gray-500 hover:text-gray-700"
+        >
+          <X size={24} />
+        </button>
+      </div>
+      <div className="overflow-y-auto flex-grow">
+        <TodoForm 
+          todo={editingTodo}
+          onClose={() => setEditingTodo(null)} 
+          onSave={handleUpdateTodo}
+        />
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </ResponsiveLayout>
   );
