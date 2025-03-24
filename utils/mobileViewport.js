@@ -1,109 +1,101 @@
-// utils/mobileViewport.js
+// mobileViewport.js
+// Place this in your utils directory or include in _app.js
 
 /**
- * Sets up optimizations for mobile viewports
- * @returns {string} The detected device type: 'mobile' or 'desktop'
+ * This script handles common mobile viewport issues:
+ * 1. Fixes the 100vh issue on mobile browsers
+ * 2. Handles keyboard appearance on iOS
+ * 3. Sets up safe area insets for notched devices
  */
-export function setupMobileViewport() {
-  if (typeof window === 'undefined') {
-    return 'desktop'; // Default for SSR
-  }
 
-  // Check if viewport meta tag already exists
-  let metaViewport = document.querySelector('meta[name="viewport"]');
-  
-  // Add viewport meta tag if it doesn't exist
-  if (!metaViewport) {
-    metaViewport = document.createElement('meta');
-    metaViewport.name = 'viewport';
-    document.head.appendChild(metaViewport);
-  }
-  
-  // Set appropriate viewport content
-  // Include maximum-scale and user-scalable to prevent zooming on form fields on iOS
-  metaViewport.content = 'width=device-width, initial-scale=1, maximum-scale=1';
-  
-  // Detect if mobile
-  const isMobile = window.innerWidth < 768;
-  
-  // Add touch event handling for mobile devices
-  if (isMobile) {
-    // Prevent double-tap to zoom on mobile
-    document.addEventListener('touchend', function(event) {
-      // Prevent zoom on double-tap for buttons and links
-      if (event.target.tagName === 'BUTTON' || event.target.tagName === 'A') {
-        event.preventDefault();
-        // Manual click trigger if needed
-        if (typeof event.target.click === 'function') {
-          event.target.click();
-        }
-      }
-    }, { passive: false });
+export function setupMobileViewport() {
+  if (typeof window === 'undefined') return;
+
+  // Fix for 100vh on mobile
+  const setVhVariable = () => {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  };
+
+  // Handle resize and orientation changes
+  const handleResize = () => {
+    setVhVariable();
     
-    // Add iOS-specific fixes
-    if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-      // Fix for iOS input zooming issue
-      const styleEl = document.createElement('style');
-      styleEl.innerHTML = `
-        input[type="text"],
-        input[type="email"],
-        input[type="tel"],
-        input[type="number"],
-        input[type="password"],
-        select, textarea {
-          font-size: 16px !important;
-        }
-      `;
-      document.head.appendChild(styleEl);
+    // Add meta viewport tag if missing
+    let viewportMeta = document.querySelector('meta[name="viewport"]');
+    if (!viewportMeta) {
+      viewportMeta = document.createElement('meta');
+      viewportMeta.name = 'viewport';
+      document.head.appendChild(viewportMeta);
     }
     
-    // Remove focus outline on mobile for better appearance
-    const styleEl = document.createElement('style');
-    styleEl.innerHTML = `
-      @media (max-width: 767px) {
-        button:focus, input:focus, select:focus, textarea:focus {
-          outline: none !important;
-        }
-      }
-    `;
-    document.head.appendChild(styleEl);
-    
-    return 'mobile';
-  }
-  
-  return 'desktop';
-}
-
-/**
- * Debounce function for performance optimization
- */
-export function debounce(func, wait = 100) {
-  let timeout;
-  return function(...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      func.apply(this, args);
-    }, wait);
+    // Set viewport with settings that work well on mobile
+    viewportMeta.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0, viewport-fit=cover';
   };
+
+  // Handle iOS keyboard
+  const handleIOSKeyboard = () => {
+    // Add event listeners to handle iOS keyboard appearance
+    const allInputs = document.querySelectorAll('input, textarea');
+    
+    allInputs.forEach(input => {
+      // On focus, scroll element into view to prevent keyboard from covering it
+      input.addEventListener('focus', () => {
+        // Small timeout to let the keyboard appear first
+        setTimeout(() => {
+          input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 300);
+      });
+    });
+  };
+
+  // Detect and handle iOS
+  const isIOS = () => {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  };
+
+  // Setup touch actions
+  const setupTouchActions = () => {
+    // Prevent double-tap zoom on buttons and interactive elements
+    const touchElements = document.querySelectorAll('button, a, .touch-button');
+    touchElements.forEach(element => {
+      element.style.touchAction = 'manipulation';
+    });
+  };
+
+  // Initialize
+  const init = () => {
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    
+    if (isIOS()) {
+      handleIOSKeyboard();
+    }
+    
+    // Wait for document to be fully loaded
+    if (document.readyState === 'complete') {
+      setupTouchActions();
+    } else {
+      window.addEventListener('load', setupTouchActions);
+    }
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+      window.removeEventListener('load', setupTouchActions);
+    };
+  };
+
+  return init();
 }
 
-/**
- * Check if viewport is mobile
- */
-export function isMobileViewport() {
-  if (typeof window === 'undefined') return false;
-  return window.innerWidth < 768;
-}
-
-/**
- * Add event listener for viewport changes
- */
-export function onViewportChange(callback) {
-  if (typeof window === 'undefined') return () => {};
+// For use with React useEffect
+export function useMobileViewport() {
+  if (typeof window === 'undefined') return;
   
-  const debouncedCallback = debounce(callback, 250);
-  window.addEventListener('resize', debouncedCallback);
-  
-  // Return cleanup function
-  return () => window.removeEventListener('resize', debouncedCallback);
+  React.useEffect(() => {
+    return setupMobileViewport();
+  }, []);
 }

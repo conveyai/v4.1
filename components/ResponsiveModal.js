@@ -97,14 +97,7 @@ const ResponsiveModal = ({
 
   if (!isMounted || !isOpen) return null;
 
-  const bodyClass = isMobile && fullscreenOnMobile 
-    ? "px-4 py-4 sm:p-6 max-h-[calc(100vh-8rem)] overflow-y-auto" 
-    : "p-4 sm:p-6 max-h-[calc(80vh-10rem)] overflow-y-auto";
-
-  // Apply desktop styling when not on mobile, even if isMobile state hasn't updated yet
-  const shouldUseFullscreen = isMobile && fullscreenOnMobile;
-
-  return createPortal(
+  const modal = (
     <div 
       className={cn(
         "fixed inset-0 z-50 flex items-center justify-center overflow-y-auto",
@@ -117,7 +110,7 @@ const ResponsiveModal = ({
         ref={modalRef}
         className={cn(
           "bg-white relative rounded-lg shadow-xl overflow-hidden transition-all duration-300 transform",
-          shouldUseFullscreen ? "w-full h-full rounded-none" : `w-full mx-4 ${sizeClasses[size]}`,
+          isMobile && fullscreenOnMobile ? "w-full h-full rounded-none" : `w-full mx-4 ${sizeClasses[size]}`,
           isAnimating ? "scale-100 translate-y-0" : "scale-95 translate-y-4",
           className
         )}
@@ -140,7 +133,12 @@ const ResponsiveModal = ({
         )}
         
         {/* Body */}
-        <div className={bodyClass}>
+        <div 
+          className={cn(
+            "overflow-y-auto",
+            isMobile && fullscreenOnMobile ? "px-4 py-4 sm:p-6 max-h-[calc(100vh-8rem)]" : "p-4 sm:p-6 max-h-[calc(80vh-10rem)]"
+          )}
+        >
           {children}
         </div>
         
@@ -151,9 +149,10 @@ const ResponsiveModal = ({
           </div>
         )}
       </div>
-    </div>,
-    document.body
+    </div>
   );
+
+  return createPortal(modal, document.body);
 };
 
 export default ResponsiveModal;

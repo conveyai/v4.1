@@ -28,8 +28,7 @@ const ResponsiveTable = ({
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  const toggleRow = (e, rowId) => {
-    e.stopPropagation(); // Prevent triggering onRowClick
+  const toggleRow = (rowId) => {
     setExpandedRows(prev => ({
       ...prev,
       [rowId]: !prev[rowId]
@@ -47,7 +46,7 @@ const ResponsiveTable = ({
   // Desktop view
   if (!isMobile) {
     return (
-      <div className="overflow-x-auto -mx-4 sm:mx-0 rounded-lg">
+      <div className="overflow-x-auto rounded-lg">
         <table className="w-full text-left border-collapse">
           <thead className="bg-gray-50">
             <tr>
@@ -63,9 +62,9 @@ const ResponsiveTable = ({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {data.map((row, index) => (
+            {data.map((row) => (
               <tr 
-                key={row[keyField] || index} 
+                key={row[keyField]} 
                 className={cn(
                   "hover:bg-gray-50 transition-colors", 
                   onRowClick ? "cursor-pointer" : ""
@@ -73,8 +72,8 @@ const ResponsiveTable = ({
                 onClick={() => onRowClick && onRowClick(row)}
               >
                 {columns.map((column) => (
-                  <td key={`${row[keyField] || index}-${column.key}`} className="px-4 py-3 whitespace-nowrap">
-                    {column.render ? column.render(row, index) : row[column.key]}
+                  <td key={`${row[keyField]}-${column.key}`} className="px-4 py-3 whitespace-nowrap">
+                    {column.render ? column.render(row) : row[column.key]}
                   </td>
                 ))}
               </tr>
@@ -88,41 +87,39 @@ const ResponsiveTable = ({
   // Mobile view - card layout
   return (
     <div className="space-y-3">
-      {data.map((row, index) => {
-        const rowId = row[keyField] || index;
-        const isExpanded = expandedRows[rowId];
+      {data.map((row) => {
+        const isExpanded = expandedRows[row[keyField]];
         const mainColumns = columns.slice(0, 2); // First two columns always visible
         const detailColumns = columns.slice(2); // Rest of the columns in expanded view
         
         return (
           <div 
-            key={rowId} 
-            className="bg-white rounded-lg shadow overflow-hidden border border-gray-200"
+            key={row[keyField]} 
+            className="bg-white rounded-lg shadow overflow-hidden"
           >
             <div 
               className={cn(
-                "p-4",
+                "p-4 flex flex-col",
                 onRowClick && !isExpanded ? "cursor-pointer" : ""
               )}
+              onClick={detailColumns.length > 0 ? () => toggleRow(row[keyField]) : null}
             >
-              {mainColumns.map((column, colIndex) => (
-                <div key={`${rowId}-${column.key}`} className={colIndex > 0 ? "mt-1" : ""}>
-                  {colIndex === 0 ? (
+              {mainColumns.map((column, index) => (
+                <div key={`${row[keyField]}-${column.key}`} className={index > 0 ? "mt-1" : ""}>
+                  {index === 0 ? (
                     <div className="flex justify-between items-center">
                       <div className="font-medium">
-                        {column.render ? column.render(row, index) : row[column.key]}
+                        {column.render ? column.render(row) : row[column.key]}
                       </div>
-                      <button 
-                        className="text-gray-400 p-2 -mr-2"
-                        onClick={(e) => toggleRow(e, rowId)}
-                        aria-label={isExpanded ? "Collapse details" : "Expand details"}
-                      >
-                        {isExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-                      </button>
+                      {detailColumns.length > 0 && (
+                        <button className="text-gray-400">
+                          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                        </button>
+                      )}
                     </div>
                   ) : (
                     <div className="text-sm text-gray-500">
-                      {column.render ? column.render(row, index) : row[column.key]}
+                      {column.render ? column.render(row) : row[column.key]}
                     </div>
                   )}
                 </div>
@@ -132,17 +129,15 @@ const ResponsiveTable = ({
               {isExpanded && detailColumns.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-gray-100 space-y-2">
                   {detailColumns.map((column) => (
-                    <div key={`${rowId}-${column.key}-detail`} className="flex justify-between text-sm">
+                    <div key={`${row[keyField]}-${column.key}-detail`} className="flex justify-between text-sm">
                       <span className="text-gray-500">{column.title}:</span>
-                      <span className="font-medium">
-                        {column.render ? column.render(row, index) : row[column.key]}
-                      </span>
+                      <span className="font-medium">{column.render ? column.render(row) : row[column.key]}</span>
                     </div>
                   ))}
                   
                   {onRowClick && (
                     <button 
-                      className="w-full mt-3 px-4 py-2 bg-blue-50 text-blue-600 rounded-md text-sm font-medium"
+                      className="w-full mt-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-md text-sm font-medium"
                       onClick={(e) => {
                         e.stopPropagation();
                         onRowClick(row);

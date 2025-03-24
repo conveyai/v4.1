@@ -1,9 +1,5 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import Head from "next/head";
-import Sidebar from "@/components/Sidebar";
-import TodoForm from "@/components/TodoForm";
-import TodoItem from "@/components/TodoItem";
 import { 
   Button,
   Card,
@@ -11,9 +7,16 @@ import {
   CardTitle,
   CardContent,
   Badge,
-  Input
 } from "@/components/ui";
 import { RefreshCw, Plus, Search, Filter, CheckSquare, Calendar, Clock, AlertTriangle } from "lucide-react";
+
+// Import responsive components
+import ResponsiveLayout from "@/components/ResponsiveLayout";
+import ResponsiveModal from "@/components/ResponsiveModal";
+import { ResponsiveInput, ResponsiveSelect } from "@/components/ResponsiveFormFields";
+import { setupMobileViewport } from "@/utils/mobileViewport";
+import TodoForm from "@/components/TodoForm";
+import TodoItem from "@/components/TodoItem";
 
 const TodosPage = () => {
   const { data: session } = useSession();
@@ -27,6 +30,26 @@ const TodosPage = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
   const [refreshing, setRefreshing] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Set up mobile viewport optimizations
+    setupMobileViewport();
+    
+    // Check if we're on a mobile device
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Load todos on initial render
   useEffect(() => {
@@ -214,216 +237,228 @@ const TodosPage = () => {
   const counts = getTodoCounts();
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Head>
-        <title>Todos | Conveyancing Management App</title>
-      </Head>
-      <Sidebar />
-      <main className="flex-1 p-6 overflow-auto">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-            <h1 className="text-2xl font-bold mb-4 sm:mb-0">Todo List</h1>
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
-              <Button 
-                onClick={handleRefresh}
-                disabled={refreshing}
-                className="flex items-center justify-center"
-              >
-                <RefreshCw size={16} className={refreshing ? "animate-spin mr-2" : "mr-2"} />
-                {refreshing ? "Refreshing" : "Refresh"}
-              </Button>
-              <Button 
-                variant="primary"
-                className="flex items-center justify-center"
-                onClick={() => setShowAddForm(true)}
-              >
-                <Plus size={16} className="mr-2" />
-                Add Todo
-              </Button>
-            </div>
+    <ResponsiveLayout title="Todos | Conveyancing Management App">
+      <div className="flex flex-col">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+          <h1 className="text-responsive-title mb-4 sm:mb-0">Todo List</h1>
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+            <Button 
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center justify-center"
+            >
+              <RefreshCw size={16} className={refreshing ? "animate-spin mr-2" : "mr-2"} />
+              {refreshing ? "Refreshing" : "Refresh"}
+            </Button>
+            <Button 
+              variant="primary"
+              className="flex items-center justify-center"
+              onClick={() => setShowAddForm(true)}
+            >
+              <Plus size={16} className="mr-2" />
+              Add Todo
+            </Button>
           </div>
+        </div>
+        
+        {/* Stats Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+          <Card className="bg-white">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Total Tasks</p>
+                  <p className="text-2xl font-semibold">{counts.total}</p>
+                </div>
+                <div className="p-2 bg-blue-100 rounded-full">
+                  <Calendar size={isMobile ? 16 : 20} className="text-blue-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
           
-          {/* Stats Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <Card className="bg-white">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Total Tasks</p>
-                    <p className="text-2xl font-semibold">{counts.total}</p>
-                  </div>
-                  <div className="p-2 bg-blue-100 rounded-full">
-                    <Calendar size={20} className="text-blue-600" />
-                  </div>
+          <Card className="bg-white">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Completed</p>
+                  <p className="text-2xl font-semibold">{counts.completed}</p>
                 </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Completed</p>
-                    <p className="text-2xl font-semibold">{counts.completed}</p>
-                  </div>
-                  <div className="p-2 bg-green-100 rounded-full">
-                    <CheckSquare size={20} className="text-green-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Upcoming</p>
-                    <p className="text-2xl font-semibold">{counts.upcoming}</p>
-                  </div>
-                  <div className="p-2 bg-purple-100 rounded-full">
-                    <Clock size={20} className="text-purple-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-500">Overdue</p>
-                    <p className="text-2xl font-semibold">{counts.overdue}</p>
-                  </div>
-                  <div className="p-2 bg-red-100 rounded-full">
-                    <AlertTriangle size={20} className="text-red-600" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="mb-6 space-y-4">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Search todos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search size={16} className="text-gray-400" />
-              </div>
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                  aria-label="Clear search"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-            
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
-              <div className="relative flex-1">
-                <select 
-                  value={filterStatus} 
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  className="pl-10 pr-4 py-2 border rounded-md bg-white w-full focus:ring-2 focus:ring-blue-300 focus:outline-none appearance-none"
-                >
-                  <option value="all">All Tasks</option>
-                  <option value="pending">Pending</option>
-                  <option value="completed">Completed</option>
-                  <option value="overdue">Overdue</option>
-                  <option value="upcoming">Upcoming (7 days)</option>
-                </select>
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Filter size={16} className="text-gray-400" />
+                <div className="p-2 bg-green-100 rounded-full">
+                  <CheckSquare size={isMobile ? 16 : 20} className="text-green-600" />
                 </div>
               </div>
-              
-              <div className="relative flex-1">
-                <select 
-                  value={filterPriority} 
-                  onChange={(e) => setFilterPriority(e.target.value)}
-                  className="pl-10 pr-4 py-2 border rounded-md bg-white w-full focus:ring-2 focus:ring-blue-300 focus:outline-none appearance-none"
-                >
-                  <option value="all">All Priorities</option>
-                  <option value="HIGH">High Priority</option>
-                  <option value="MEDIUM">Medium Priority</option>
-                  <option value="LOW">Low Priority</option>
-                </select>
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <AlertTriangle size={16} className="text-gray-400" />
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Upcoming</p>
+                  <p className="text-2xl font-semibold">{counts.upcoming}</p>
+                </div>
+                <div className="p-2 bg-purple-100 rounded-full">
+                  <Clock size={isMobile ? 16 : 20} className="text-purple-600" />
                 </div>
               </div>
-            </div>
-          </div>
-
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md mb-4">
-              {error}
-            </div>
-          )}
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Todo List</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading && !refreshing ? (
-                <div className="flex justify-center items-center h-64">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-white">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Overdue</p>
+                  <p className="text-2xl font-semibold">{counts.overdue}</p>
                 </div>
-              ) : filteredTodos.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">No todos found.</p>
-                  {(searchQuery || filterStatus !== "all" || filterPriority !== "all") ? (
-                    <p className="text-gray-500 mt-2">Try changing your filters.</p>
-                  ) : (
-                    <Button 
-                      onClick={() => setShowAddForm(true)}
-                      className="mt-4"
-                    >
-                      <Plus size={16} className="mr-2" />
-                      Create Your First Todo
-                    </Button>
-                  )}
+                <div className="p-2 bg-red-100 rounded-full">
+                  <AlertTriangle size={isMobile ? 16 : 20} className="text-red-600" />
                 </div>
-              ) : (
-                <div className="space-y-1">
-                  {filteredTodos.map(todo => (
-                    <TodoItem
-                      key={todo.id}
-                      todo={todo}
-                      onEdit={setEditingTodo}
-                      onDelete={handleDeleteTodo}
-                      onToggleComplete={handleToggleComplete}
-                    />
-                  ))}
-                </div>
-              )}
+              </div>
             </CardContent>
           </Card>
         </div>
 
+        <div className="mb-6 space-y-4">
+          <div className="relative">
+            <ResponsiveInput
+              type="text"
+              placeholder="Search todos..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search size={16} className="text-gray-400" />
+            </div>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                aria-label="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+            <div className="relative flex-1">
+              <ResponsiveSelect
+                value={filterStatus} 
+                onChange={(e) => setFilterStatus(e.target.value)}
+                options={[
+                  { value: "all", label: "All Tasks" },
+                  { value: "pending", label: "Pending" },
+                  { value: "completed", label: "Completed" },
+                  { value: "overdue", label: "Overdue" },
+                  { value: "upcoming", label: "Upcoming (7 days)" }
+                ]}
+                className="pl-10"
+              />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Filter size={16} className="text-gray-400" />
+              </div>
+            </div>
+            
+            <div className="relative flex-1">
+              <ResponsiveSelect
+                value={filterPriority} 
+                onChange={(e) => setFilterPriority(e.target.value)}
+                options={[
+                  { value: "all", label: "All Priorities" },
+                  { value: "HIGH", label: "High Priority" },
+                  { value: "MEDIUM", label: "Medium Priority" },
+                  { value: "LOW", label: "Low Priority" }
+                ]}
+                className="pl-10"
+              />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <AlertTriangle size={16} className="text-gray-400" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md mb-4">
+            {error}
+          </div>
+        )}
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Todo List</CardTitle>
+          </CardHeader>
+          <CardContent className="p-3 md:p-5">
+            {loading && !refreshing ? (
+              <div className="flex justify-center items-center h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+              </div>
+            ) : filteredTodos.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-gray-500">No todos found.</p>
+                {(searchQuery || filterStatus !== "all" || filterPriority !== "all") ? (
+                  <p className="text-gray-500 mt-2">Try changing your filters.</p>
+                ) : (
+                  <Button 
+                    onClick={() => setShowAddForm(true)}
+                    className="mt-4"
+                  >
+                    <Plus size={16} className="mr-2" />
+                    Create Your First Todo
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {filteredTodos.map(todo => (
+                  <TodoItem
+                    key={todo.id}
+                    todo={todo}
+                    onEdit={setEditingTodo}
+                    onDelete={handleDeleteTodo}
+                    onToggleComplete={handleToggleComplete}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {showAddForm && (
-          <TodoForm 
-            onClose={() => setShowAddForm(false)} 
-            onSave={handleAddTodo}
-          />
+          <ResponsiveModal
+            isOpen={true}
+            onClose={() => setShowAddForm(false)}
+            title="Add New Todo"
+            fullscreenOnMobile={true}
+            size="md"
+          >
+            <TodoForm 
+              onClose={() => setShowAddForm(false)} 
+              onSave={handleAddTodo}
+            />
+          </ResponsiveModal>
         )}
 
         {editingTodo && (
-          <TodoForm 
-            todo={editingTodo}
-            onClose={() => setEditingTodo(null)} 
-            onSave={handleUpdateTodo}
-          />
+          <ResponsiveModal
+            isOpen={true}
+            onClose={() => setEditingTodo(null)}
+            title="Edit Todo"
+            fullscreenOnMobile={true}
+            size="md"
+          >
+            <TodoForm 
+              todo={editingTodo}
+              onClose={() => setEditingTodo(null)} 
+              onSave={handleUpdateTodo}
+            />
+          </ResponsiveModal>
         )}
-      </main>
-    </div>
+      </div>
+    </ResponsiveLayout>
   );
 };
 

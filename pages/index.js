@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useSession, signIn } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
-import Sidebar from "@/components/Sidebar";
 import { 
   Card, 
   CardHeader, 
@@ -14,6 +13,10 @@ import {
 import { FileText, Users, Calendar, TrendingUp, DollarSign, CheckSquare, Plus } from "lucide-react";
 import { useRouter } from "next/router";
 
+// Import responsive components
+import ResponsiveLayout from "@/components/ResponsiveLayout";
+import { setupMobileViewport } from "@/utils/mobileViewport";
+
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -24,6 +27,26 @@ export default function Home() {
     recentMatters: [],
     loading: true
   });
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    // Set up mobile viewport optimizations
+    setupMobileViewport();
+    
+    // Check if we're on a mobile device
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    // Initial check
+    checkMobile();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', checkMobile);
+    
+    // Cleanup
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     if (status === "loading") {
@@ -121,163 +144,155 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <Head>
-        <title>Dashboard | Conveyancing Management App</title>
-      </Head>
-      <Sidebar />
-      <main className="flex-1 p-6 overflow-auto">
-        <div className="max-w-6xl mx-auto">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold">Dashboard</h1>
-            {session && (
-              <p className="text-gray-600">
-                Welcome back, {session.user.name}
-              </p>
-            )}
-          </div>
+    <ResponsiveLayout title="Dashboard | Conveyancing Management App">
+      <div className="mb-6">
+        <h1 className="text-responsive-title">Dashboard</h1>
+        {session && (
+          <p className="text-gray-600">
+            Welcome back, {session.user.name}
+          </p>
+        )}
+      </div>
 
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center">
-                  <div className="p-2 bg-blue-100 rounded-lg mr-4">
-                    <FileText size={24} className="text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Pending Matters</p>
-                    {stats.loading ? (
-                      <div className="h-6 w-16 bg-gray-200 animate-pulse rounded mt-1"></div>
-                    ) : (
-                      <p className="text-2xl font-semibold">{stats.pendingMatters}</p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center">
-                  <div className="p-2 bg-green-100 rounded-lg mr-4">
-                    <CheckSquare size={24} className="text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Completed Matters</p>
-                    {stats.loading ? (
-                      <div className="h-6 w-16 bg-gray-200 animate-pulse rounded mt-1"></div>
-                    ) : (
-                      <p className="text-2xl font-semibold">{stats.completedMatters}</p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-center">
-                  <div className="p-2 bg-purple-100 rounded-lg mr-4">
-                    <Users size={24} className="text-purple-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-500">Total Clients</p>
-                    {stats.loading ? (
-                      <div className="h-6 w-16 bg-gray-200 animate-pulse rounded mt-1"></div>
-                    ) : (
-                      <p className="text-2xl font-semibold">{stats.totalClients}</p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Recent Matters */}
-          <Card className="mb-6">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Recent Matters</CardTitle>
-                <Link href="/matters" passHref>
-                  <Button variant="outline" size="sm">View All</Button>
-                </Link>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center">
+              <div className="p-2 bg-blue-100 rounded-lg mr-4">
+                <FileText size={isMobile ? 20 : 24} className="text-blue-600" />
               </div>
-            </CardHeader>
-            <CardContent>
-              {stats.loading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map(i => (
-                    <div key={i} className="h-16 bg-gray-100 animate-pulse rounded"></div>
-                  ))}
-                </div>
-              ) : stats.recentMatters.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  No matters found. Create your first matter to get started.
-                </div>
-              ) : (
-                <div className="divide-y">
-                  {stats.recentMatters.map((matter) => (
-                    <div key={matter.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between">
-                      <div className="mb-2 sm:mb-0">
-                        <p className="font-medium">{matter.property?.address || "Property not specified"}</p>
-                        <div className="flex items-center text-sm text-gray-500">
-                          <Calendar size={14} className="mr-1" />
-                          {matter.date}
-                          <span className="mx-2">•</span>
-                          <TrendingUp size={14} className="mr-1" />
-                          {matter.type}
-                        </div>
-                      </div>
-                      <div className="flex items-center">
-                        <div className="mr-4 text-right">
-                          <div className="flex items-center text-sm text-gray-500">
-                            <DollarSign size={14} className="mr-1" />
-                            <span className="font-medium">{formatCurrency(matter.amount)}</span>
-                          </div>
-                        </div>
-                        {renderStatusBadge(matter.status)}
+              <div>
+                <p className="text-sm text-gray-500">Pending Matters</p>
+                {stats.loading ? (
+                  <div className="h-6 w-16 bg-gray-200 animate-pulse rounded mt-1"></div>
+                ) : (
+                  <p className="text-2xl font-semibold">{stats.pendingMatters}</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center">
+              <div className="p-2 bg-green-100 rounded-lg mr-4">
+                <CheckSquare size={isMobile ? 20 : 24} className="text-green-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Completed Matters</p>
+                {stats.loading ? (
+                  <div className="h-6 w-16 bg-gray-200 animate-pulse rounded mt-1"></div>
+                ) : (
+                  <p className="text-2xl font-semibold">{stats.completedMatters}</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center">
+              <div className="p-2 bg-purple-100 rounded-lg mr-4">
+                <Users size={isMobile ? 20 : 24} className="text-purple-600" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Total Clients</p>
+                {stats.loading ? (
+                  <div className="h-6 w-16 bg-gray-200 animate-pulse rounded mt-1"></div>
+                ) : (
+                  <p className="text-2xl font-semibold">{stats.totalClients}</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Recent Matters */}
+      <Card className="mb-6">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>Recent Matters</CardTitle>
+            <Link href="/matters" passHref>
+              <Button variant="outline" size="sm">View All</Button>
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {stats.loading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-16 bg-gray-100 animate-pulse rounded"></div>
+              ))}
+            </div>
+          ) : stats.recentMatters.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No matters found. Create your first matter to get started.
+            </div>
+          ) : (
+            <div className="divide-y">
+              {stats.recentMatters.map((matter) => (
+                <div key={matter.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between">
+                  <div className="mb-2 sm:mb-0">
+                    <p className="font-medium">{matter.property?.address || "Property not specified"}</p>
+                    <div className="flex items-center text-sm text-gray-500">
+                      <Calendar size={14} className="mr-1" />
+                      {matter.date}
+                      <span className="mx-2">•</span>
+                      <TrendingUp size={14} className="mr-1" />
+                      {matter.type}
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <div className="mr-4 text-right">
+                      <div className="flex items-center text-sm text-gray-500">
+                        <DollarSign size={14} className="mr-1" />
+                        <span className="font-medium">{formatCurrency(matter.amount)}</span>
                       </div>
                     </div>
-                  ))}
+                    {renderStatusBadge(matter.status)}
+                  </div>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                <Link href="/matters" passHref>
-                  <Button variant="outline" className="w-full justify-start">
-                    <FileText size={16} className="mr-2" />
-                    View Matters
-                  </Button>
-                </Link>
-                <Link href="/clients" passHref>
-                  <Button variant="outline" className="w-full justify-start">
-                    <Users size={16} className="mr-2" />
-                    Manage Clients
-                  </Button>
-                </Link>
-                <Link href="/matters" passHref>
-                  <Button 
-                    variant="success" 
-                    className="w-full justify-start"
-                  >
-                    <Plus size={16} className="mr-2" />
-                    New Matter
-                  </Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
-    </div>
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <Link href="/matters" passHref>
+              <Button variant="outline" className="w-full justify-start">
+                <FileText size={16} className="mr-2" />
+                View Matters
+              </Button>
+            </Link>
+            <Link href="/clients" passHref>
+              <Button variant="outline" className="w-full justify-start">
+                <Users size={16} className="mr-2" />
+                Manage Clients
+              </Button>
+            </Link>
+            <Link href="/matters" passHref>
+              <Button 
+                variant="success" 
+                className="w-full justify-start"
+              >
+                <Plus size={16} className="mr-2" />
+                New Matter
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+      </Card>
+    </ResponsiveLayout>
   );
 }

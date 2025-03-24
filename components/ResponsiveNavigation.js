@@ -26,11 +26,10 @@ const ResponsiveNavigation = () => {
   useEffect(() => {
     // Check if we're on a mobile device
     const checkMobile = () => {
-      const mobileCheck = window.innerWidth < 768;
-      setIsMobile(mobileCheck);
+      setIsMobile(window.innerWidth < 768);
       
       // Always collapse sidebar on mobile
-      if (mobileCheck) {
+      if (window.innerWidth < 768) {
         setIsOpen(false);
       } else {
         setIsOpen(true);
@@ -151,7 +150,7 @@ const ResponsiveNavigation = () => {
   return (
     <>
       {/* Bottom Navigation Bar for Mobile */}
-      <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white border-t border-gray-800 z-50 pt-safe">
+      <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white border-t border-gray-800 z-50">
         <div className="flex justify-around items-center">
           {navItems.slice(0, 4).map((item) => (
             <Link 
@@ -245,6 +244,9 @@ const ResponsiveNavigation = () => {
           </div>
         </div>
       )}
+      
+      {/* Add padding to the bottom of the page to account for the navigation bar */}
+      <div className="h-16"></div>
     </>
   );
 };

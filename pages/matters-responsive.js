@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import Head from "next/head";
 import { 
   Button,
   Card,
@@ -8,23 +9,26 @@ import {
   CardContent,
   Badge,
 } from "@/components/ui";
-import { RefreshCw, Search, Archive } from "lucide-react";
+import { RefreshCw, Plus, Search, Filter } from "lucide-react";
 
-// Import responsive components
+// Import our new responsive components
 import ResponsiveLayout from "@/components/ResponsiveLayout";
 import ResponsiveTable from "@/components/ResponsiveTable";
 import ResponsiveModal from "@/components/ResponsiveModal";
-import { ResponsiveInput } from "@/components/ResponsiveFormFields";
+import { ResponsiveInput, ResponsiveSelect } from "@/components/ResponsiveFormFields";
 import { setupMobileViewport } from "@/utils/mobileViewport";
 import MatterDetail from "@/components/MatterDetail";
+import MatterForm from "@/components/MatterForm";
 
-const ArchivedMattersPage = () => {
-  const { data: session, status } = useSession();
+const MattersOverview = () => {
+  const { data: session } = useSession();
   const [matters, setMatters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedMatter, setSelectedMatter] = useState(null);
+  const [filterStatus, setFilterStatus] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showAddForm, setShowAddForm] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -47,22 +51,17 @@ const ArchivedMattersPage = () => {
   }, []);
 
   useEffect(() => {
-    // Only fetch data when session is available
-    if (status === "authenticated") {
-      fetchArchivedMatters();
-    } else if (status === "unauthenticated") {
-      // Handle unauthenticated case if needed
-      setLoading(false);
+    if (session) {
+      fetchMatters();
     }
-  }, [status]);
+  }, [session]);
 
-  const fetchArchivedMatters = async () => {
+  const fetchMatters = async () => {
     setLoading(true);
     setError(null);
     
     try {
-      // Call the proper API endpoint
-      const response = await fetch("/api/archived-matters");
+      const response = await fetch("/api/matters");
       
       if (!response.ok) {
         throw new Error(`Error ${response.status}: ${response.statusText}`);
@@ -71,23 +70,24 @@ const ArchivedMattersPage = () => {
       const data = await response.json();
       setMatters(data);
     } catch (err) {
-      console.error("Failed to fetch archived matters:", err);
-      setError("Failed to load archived matters. Please try again.");
+      console.error("Failed to fetch matters:", err);
+      setError("Failed to load matters. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Filter matters based on search query
-  const filteredMatters = matters.filter(matter => 
-    searchQuery === "" || 
-    (matter.id && matter.id.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (matter.property?.address && matter.property.address.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (matter.type && matter.type.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (matter.buyer?.name && matter.buyer.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (matter.seller?.name && matter.seller.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-    (matter.conveyancer?.name && matter.conveyancer.name.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  // Filter matters based on status and search query
+  const filteredMatters = matters
+    .filter(matter => filterStatus === "All" || matter.status === filterStatus)
+    .filter(matter => 
+      searchQuery === "" || 
+      (matter.id && matter.id.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (matter.property?.address && matter.property.address.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (matter.type && matter.type.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (matter.buyer?.name && matter.buyer.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (matter.seller?.name && matter.seller.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
 
   const renderStatusBadge = (status) => {
     const variants = {
@@ -104,40 +104,16 @@ const ArchivedMattersPage = () => {
     return new Intl.NumberFormat('en-AU', { style: 'currency', currency: 'AUD' }).format(amount);
   };
 
-  // Format date values
-  const formatDate = (dateString) => {
-    if (!dateString) return "—";
-    return new Date(dateString).toLocaleDateString();
-  };
-
-  // Format archived date with time
-  const formatArchivedDate = (dateString) => {
-    if (!dateString) return "—";
-    return new Date(dateString).toLocaleString();
-  };
-
-  // Format matter ID to display in a user-friendly way
+  // Format matter ID to match the format shown in UI
   const formatMatterId = (id, index) => {
     if (!id) return "—";
     return `TXN${(index + 1).toString().padStart(3, '0')}`;
   };
 
-  const handleUnarchive = async (matterId) => {
-    try {
-      const response = await fetch(`/api/matters/${matterId}/archive`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        throw new Error("Failed to unarchive matter");
-      }
-      
-      // Refresh the matters list
-      fetchArchivedMatters();
-    } catch (error) {
-      console.error("Error unarchiving matter:", error);
-      setError(error.message || "Failed to unarchive matter. Please try again.");
-    }
+  const handleMatterSave = (savedMatter) => {
+    setMatters([savedMatter, ...matters]);
+    setShowAddForm(false);
+    // Show success message or notification here if desired
   };
 
   // Define table columns
@@ -152,12 +128,22 @@ const ArchivedMattersPage = () => {
     {
       key: "property",
       title: "Property",
-      render: (row) => row.property?.address || "—"
+      render: (row) => row.property?.address || "Not specified"
     },
     {
-      key: "type",
-      title: "Type",
-      render: (row) => row.type
+      key: "date",
+      title: "Date",
+      render: (row) => row.date
+    },
+    {
+      key: "buyer",
+      title: "Buyer",
+      render: (row) => row.buyer?.name || "—"
+    },
+    {
+      key: "seller",
+      title: "Seller",
+      render: (row) => row.seller?.name || "—"
     },
     {
       key: "amount",
@@ -173,71 +159,58 @@ const ArchivedMattersPage = () => {
       key: "conveyancer",
       title: "Conveyancer",
       render: (row) => row.conveyancer?.name || session?.user?.name || "—"
-    },
-    {
-      key: "archived_at",
-      title: "Archived Date",
-      render: (row) => formatArchivedDate(row.archived_at)
-    },
-    {
-      key: "actions",
-      title: "Actions",
-      render: (row) => (
-        <Button
-          variant="outline" 
-          size="sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleUnarchive(row.id);
-          }}
-        >
-          Unarchive
-        </Button>
-      )
     }
   ];
 
   return (
-    <ResponsiveLayout title="Archived Matters | Conveyancing Management App">
+    <ResponsiveLayout title="Matters | Conveyancing Management App">
       <div className="flex flex-col">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-          <div className="flex items-center mb-4 sm:mb-0">
-            <Archive className="mr-2 text-gray-500" size={isMobile ? 20 : 24} />
-            <h1 className="text-responsive-title">Archived Matters</h1>
-          </div>
+          <h1 className="text-responsive-title mb-4 sm:mb-0">Matters</h1>
           <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
             <Button 
-              onClick={fetchArchivedMatters}
+              onClick={fetchMatters}
               disabled={loading}
               className="flex items-center justify-center"
             >
               <RefreshCw size={16} className={loading ? "animate-spin mr-2" : "mr-2"} />
               {loading ? "Refreshing" : "Refresh"}
             </Button>
+            <Button 
+              variant="primary"
+              className="flex items-center justify-center"
+              onClick={() => setShowAddForm(true)}
+            >
+              <Plus size={16} className="mr-2" />
+              Add Matter
+            </Button>
           </div>
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 grid-responsive-2">
           <div className="relative">
             <ResponsiveInput
               type="text"
-              placeholder="Search by property, client, type, conveyancer..."
+              placeholder="Search by property, client, type..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
+              icon={<Search size={16} className="text-gray-400" />}
             />
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search size={16} className="text-gray-400" />
-            </div>
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
-                aria-label="Clear search"
-              >
-                ✕
-              </button>
-            )}
+          </div>
+          
+          <div className="relative">
+            <ResponsiveSelect
+              value={filterStatus} 
+              onChange={(e) => setFilterStatus(e.target.value)}
+              options={[
+                { value: "All", label: "All Statuses" },
+                { value: "Pending", label: "Pending" },
+                { value: "Completed", label: "Completed" },
+                { value: "Cancelled", label: "Cancelled" }
+              ]}
+              icon={<Filter size={16} className="text-gray-400" />}
+            />
           </div>
         </div>
 
@@ -249,7 +222,7 @@ const ArchivedMattersPage = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Archived Matters</CardTitle>
+            <CardTitle>Matter List</CardTitle>
           </CardHeader>
           <CardContent>
             {loading && !error ? (
@@ -264,9 +237,9 @@ const ArchivedMattersPage = () => {
                 keyField="id"
                 emptyMessage={
                   filteredMatters.length === 0 
-                    ? searchQuery 
-                      ? "No archived matters match your search."
-                      : "No archived matters found."
+                    ? (filterStatus !== "All" || searchQuery) 
+                      ? "No matters match your filters. Try changing your search criteria." 
+                      : "No matters found. Create your first matter to get started." 
                     : "No data available"
                 }
               />
@@ -275,18 +248,42 @@ const ArchivedMattersPage = () => {
         </Card>
 
         {selectedMatter && (
-          <ResponsiveModal
-            isOpen={true}
-            onClose={() => setSelectedMatter(null)}
-            title="Matter Details"
-            fullscreenOnMobile={true}
-            size="lg"
-          >
+          isMobile ? (
+            <ResponsiveModal
+              isOpen={!!selectedMatter}
+              onClose={() => setSelectedMatter(null)}
+              title="Matter Details"
+              fullscreenOnMobile={true}
+              size="lg"
+            >
+              <MatterDetail 
+                matter={selectedMatter} 
+                onClose={() => setSelectedMatter(null)} 
+                onUpdate={fetchMatters}
+                isResponsive={true}
+              />
+            </ResponsiveModal>
+          ) : (
             <MatterDetail 
               matter={selectedMatter} 
               onClose={() => setSelectedMatter(null)} 
-              onUpdate={fetchArchivedMatters}
-              isArchived={true}
+              onUpdate={fetchMatters}
+            />
+          )
+        )}
+
+        {showAddForm && (
+          <ResponsiveModal
+            isOpen={showAddForm}
+            onClose={() => setShowAddForm(false)}
+            title="Add New Matter"
+            fullscreenOnMobile={true}
+            size="lg"
+          >
+            <MatterForm 
+              onClose={() => setShowAddForm(false)} 
+              onSave={handleMatterSave}
+              isResponsive={true}
             />
           </ResponsiveModal>
         )}
@@ -295,4 +292,4 @@ const ArchivedMattersPage = () => {
   );
 };
 
-export default ArchivedMattersPage;
+export default MattersOverview;

@@ -1,8 +1,6 @@
 import { forwardRef } from "react";
 import { cn } from "@/utils/cn";
-import { useIsMobile } from "@/utils/useResponsive";
 
-// ResponsiveInput component with improved mobile detection
 export const ResponsiveInput = forwardRef(({ 
   className, 
   type = "text", 
@@ -12,21 +10,12 @@ export const ResponsiveInput = forwardRef(({
   helperText,
   ...props 
 }, ref) => {
-  const isMobile = useIsMobile();
-  
   return (
-    <div className={cn(
-      "mb-4", 
-      fullWidth ? "w-full" : "",
-      isMobile ? "flex flex-col" : ""
-    )}>
+    <div className={cn("mb-4", fullWidth ? "w-full" : "")}>
       {label && (
         <label 
           htmlFor={props.id} 
-          className={cn(
-            "block text-sm font-medium text-gray-700",
-            isMobile ? "mb-1" : "mb-1 md:mb-2"
-          )}
+          className="block text-sm font-medium text-gray-700 mb-1"
         >
           {label}
           {props.required && <span className="text-red-500 ml-1">*</span>}
@@ -39,27 +28,16 @@ export const ResponsiveInput = forwardRef(({
           error
             ? "border-red-300 focus:border-red-300 focus:ring-red-200 text-red-900 placeholder-red-300"
             : "border-gray-300 focus:border-blue-300 focus:ring-blue-200",
-          isMobile ? "text-base" : "text-sm md:text-base",
           className
         )}
         ref={ref}
         {...props}
       />
       {error && (
-        <p className={cn(
-          "mt-1 text-red-600",
-          isMobile ? "text-sm" : "text-xs md:text-sm"
-        )}>
-          {error}
-        </p>
+        <p className="mt-1 text-sm text-red-600">{error}</p>
       )}
       {helperText && !error && (
-        <p className={cn(
-          "mt-1 text-gray-500",
-          isMobile ? "text-sm" : "text-xs md:text-sm"
-        )}>
-          {helperText}
-        </p>
+        <p className="mt-1 text-sm text-gray-500">{helperText}</p>
       )}
     </div>
   );
@@ -67,7 +45,6 @@ export const ResponsiveInput = forwardRef(({
 
 ResponsiveInput.displayName = "ResponsiveInput";
 
-// ResponsiveSelect component with improved mobile detection
 export const ResponsiveSelect = forwardRef(({ 
   className, 
   error, 
@@ -77,21 +54,12 @@ export const ResponsiveSelect = forwardRef(({
   helperText,
   ...props 
 }, ref) => {
-  const isMobile = useIsMobile();
-  
   return (
-    <div className={cn(
-      "mb-4", 
-      fullWidth ? "w-full" : "",
-      isMobile ? "flex flex-col" : ""
-    )}>
+    <div className={cn("mb-4", fullWidth ? "w-full" : "")}>
       {label && (
         <label 
           htmlFor={props.id} 
-          className={cn(
-            "block text-sm font-medium text-gray-700",
-            isMobile ? "mb-1" : "mb-1 md:mb-2"
-          )}
+          className="block text-sm font-medium text-gray-700 mb-1"
         >
           {label}
           {props.required && <span className="text-red-500 ml-1">*</span>}
@@ -103,7 +71,6 @@ export const ResponsiveSelect = forwardRef(({
           error
             ? "border-red-300 focus:border-red-300 focus:ring-red-200 text-red-900"
             : "border-gray-300 focus:border-blue-300 focus:ring-blue-200",
-          isMobile ? "text-base" : "text-sm md:text-base",
           className
         )}
         ref={ref}
@@ -116,20 +83,10 @@ export const ResponsiveSelect = forwardRef(({
         ))}
       </select>
       {error && (
-        <p className={cn(
-          "mt-1 text-red-600",
-          isMobile ? "text-sm" : "text-xs md:text-sm"
-        )}>
-          {error}
-        </p>
+        <p className="mt-1 text-sm text-red-600">{error}</p>
       )}
       {helperText && !error && (
-        <p className={cn(
-          "mt-1 text-gray-500",
-          isMobile ? "text-sm" : "text-xs md:text-sm"
-        )}>
-          {helperText}
-        </p>
+        <p className="mt-1 text-sm text-gray-500">{helperText}</p>
       )}
     </div>
   );
@@ -137,7 +94,6 @@ export const ResponsiveSelect = forwardRef(({
 
 ResponsiveSelect.displayName = "ResponsiveSelect";
 
-// ResponsiveTextarea component with improved mobile detection
 export const ResponsiveTextarea = forwardRef(({ 
   className, 
   error, 
@@ -147,21 +103,12 @@ export const ResponsiveTextarea = forwardRef(({
   helperText,
   ...props 
 }, ref) => {
-  const isMobile = useIsMobile();
-  
   return (
-    <div className={cn(
-      "mb-4", 
-      fullWidth ? "w-full" : "",
-      isMobile ? "flex flex-col" : ""
-    )}>
+    <div className={cn("mb-4", fullWidth ? "w-full" : "")}>
       {label && (
         <label 
           htmlFor={props.id} 
-          className={cn(
-            "block text-sm font-medium text-gray-700",
-            isMobile ? "mb-1" : "mb-1 md:mb-2"
-          )}
+          className="block text-sm font-medium text-gray-700 mb-1"
         >
           {label}
           {props.required && <span className="text-red-500 ml-1">*</span>}
@@ -174,27 +121,16 @@ export const ResponsiveTextarea = forwardRef(({
           error
             ? "border-red-300 focus:border-red-300 focus:ring-red-200 text-red-900 placeholder-red-300"
             : "border-gray-300 focus:border-blue-300 focus:ring-blue-200",
-          isMobile ? "text-base" : "text-sm md:text-base",
           className
         )}
         ref={ref}
         {...props}
       />
       {error && (
-        <p className={cn(
-          "mt-1 text-red-600",
-          isMobile ? "text-sm" : "text-xs md:text-sm"
-        )}>
-          {error}
-        </p>
+        <p className="mt-1 text-sm text-red-600">{error}</p>
       )}
       {helperText && !error && (
-        <p className={cn(
-          "mt-1 text-gray-500",
-          isMobile ? "text-sm" : "text-xs md:text-sm"
-        )}>
-          {helperText}
-        </p>
+        <p className="mt-1 text-sm text-gray-500">{helperText}</p>
       )}
     </div>
   );
@@ -202,19 +138,12 @@ export const ResponsiveTextarea = forwardRef(({
 
 ResponsiveTextarea.displayName = "ResponsiveTextarea";
 
-// FormGroup component with improved mobile detection
 export const FormGroup = ({ children, className, direction = "row" }) => {
-  const isMobile = useIsMobile();
-  
   return (
     <div 
       className={cn(
         "mb-4 gap-4",
-        isMobile 
-          ? "flex flex-col" 
-          : direction === "row" 
-            ? "flex flex-col sm:flex-row" 
-            : "flex flex-col",
+        direction === "row" ? "flex flex-col sm:flex-row" : "flex flex-col",
         className
       )}
     >
@@ -223,7 +152,6 @@ export const FormGroup = ({ children, className, direction = "row" }) => {
   );
 };
 
-// ResponsiveCheckbox component with improved mobile detection
 export const ResponsiveCheckbox = forwardRef(({ 
   className, 
   error, 
@@ -231,8 +159,6 @@ export const ResponsiveCheckbox = forwardRef(({
   helperText,
   ...props 
 }, ref) => {
-  const isMobile = useIsMobile();
-  
   return (
     <div className="mb-4">
       <div className="flex items-center">
@@ -248,10 +174,7 @@ export const ResponsiveCheckbox = forwardRef(({
         {label && (
           <label 
             htmlFor={props.id} 
-            className={cn(
-              "ml-2 block text-gray-700",
-              isMobile ? "text-base" : "text-sm"
-            )}
+            className="ml-2 block text-sm text-gray-700"
           >
             {label}
             {props.required && <span className="text-red-500 ml-1">*</span>}
@@ -259,20 +182,10 @@ export const ResponsiveCheckbox = forwardRef(({
         )}
       </div>
       {error && (
-        <p className={cn(
-          "mt-1 text-red-600",
-          isMobile ? "text-sm" : "text-xs"
-        )}>
-          {error}
-        </p>
+        <p className="mt-1 text-sm text-red-600">{error}</p>
       )}
       {helperText && !error && (
-        <p className={cn(
-          "mt-1 text-gray-500",
-          isMobile ? "text-sm" : "text-xs"
-        )}>
-          {helperText}
-        </p>
+        <p className="mt-1 text-sm text-gray-500">{helperText}</p>
       )}
     </div>
   );

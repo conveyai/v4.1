@@ -2,140 +2,183 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base styles */
-@layer base {
-  body {
-    @apply bg-gray-100 text-gray-900;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold;
-  }
+/* Global styles */
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
 }
 
-/* Component styles */
-@layer components {
-  /* Button styles */
-  .btn {
-    @apply px-4 py-2 font-semibold rounded-md transition-colors duration-200;
-  }
-
-  .btn-primary {
-    @apply bg-blue-600 text-white hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-300;
-  }
-
-  .btn-secondary {
-    @apply bg-gray-600 text-white hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-300;
-  }
-
-  .btn-success {
-    @apply bg-green-600 text-white hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-green-300;
-  }
-
-  .btn-danger {
-    @apply bg-red-600 text-white hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-300;
-  }
-
-  /* Card component */
-  .card {
-    @apply bg-white rounded-lg shadow-md;
-  }
-
-  .card-header {
-    @apply p-4 border-b;
-  }
-
-  .card-body {
-    @apply p-4;
-  }
-
-  .card-footer {
-    @apply p-4 border-t;
-  }
-
-  /* Form controls */
-  .form-input {
-    @apply w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-300;
-  }
-
-  .form-label {
-    @apply block text-gray-700 mb-1;
-  }
-
-  /* Table styles */
-  .table-container {
-    @apply overflow-x-auto bg-white shadow-md rounded-lg;
-  }
-
-  .table {
-    @apply w-full text-left border-collapse;
-  }
-
-  .table-header {
-    @apply bg-gray-50 border-b;
-  }
-
-  .table-row {
-    @apply border-b hover:bg-gray-50;
-  }
-
-  .table-cell {
-    @apply p-4;
-  }
-
-  /* Status badges */
-  .badge {
-    @apply px-2 py-1 rounded-full text-xs font-medium;
-  }
-
-  .badge-success {
-    @apply bg-green-100 text-green-800;
-  }
-
-  .badge-warning {
-    @apply bg-yellow-100 text-yellow-800;
-  }
-
-  .badge-danger {
-    @apply bg-red-100 text-red-800;
-  }
-
-  .badge-info {
-    @apply bg-blue-100 text-blue-800;
-  }
-
-  /* Modal styles */
-  .modal-overlay {
-    @apply fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50;
-  }
-
-  .modal-content {
-    @apply bg-white p-6 rounded-lg shadow-lg;
-  }
-
-  .modal-header {
-    @apply flex justify-between items-center mb-4;
-  }
-
-  .modal-body {
-    @apply mb-6;
-  }
-
-  .modal-footer {
-    @apply flex justify-end space-x-2;
-  }
+/* Fix for mobile viewport height issues */
+:root {
+  --vh: 1vh;
 }
 
-/* Custom utility classes */
+.h-screen-safe {
+  height: calc(var(--vh, 1vh) * 100);
+}
+
+/* Responsive Utilities CSS */
+
+/* Mobile-first media query helpers */
 @layer utilities {
-  .text-shadow {
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Hide elements on mobile or desktop */
+  .hide-on-mobile {
+    @apply hidden md:block;
+  }
+  
+  .hide-on-desktop {
+    @apply block md:hidden;
+  }
+  
+  /* Spacing adjustments for mobile */
+  .p-responsive {
+    @apply p-3 md:p-6;
+  }
+  
+  .m-responsive {
+    @apply m-3 md:m-6;
+  }
+  
+  .px-responsive {
+    @apply px-3 md:px-6;
+  }
+  
+  .py-responsive {
+    @apply py-3 md:py-6;
+  }
+  
+  /* Text size adjustments */
+  .text-responsive-title {
+    @apply text-xl md:text-2xl font-bold;
+  }
+  
+  .text-responsive-subtitle {
+    @apply text-lg md:text-xl font-semibold;
+  }
+  
+  /* Layout adjustments */
+  .grid-responsive {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+  }
+  
+  .grid-responsive-2 {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  }
+  
+  /* Flex direction changes */
+  .flex-responsive {
+    @apply flex flex-col md:flex-row;
+  }
+  
+  .flex-responsive-reverse {
+    @apply flex flex-col-reverse md:flex-row;
+  }
+  
+  /* Width adjustments */
+  .w-responsive-full {
+    @apply w-full md:w-auto;
+  }
+  
+  /* Gap adjustments */
+  .gap-responsive {
+    @apply gap-2 md:gap-4;
+  }
+  
+  /* Alignment adjustments */
+  .items-responsive-start {
+    @apply items-start md:items-center;
+  }
+  
+  .justify-responsive-center {
+    @apply justify-center md:justify-between;
+  }
+  
+  /* Special case for bottom navigation padding */
+  .pb-safe {
+    @apply pb-16 md:pb-0;
+  }
+  
+  /* Animation for mobile bottom drawer */
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out forwards;
+  }
+  
+  @keyframes slideUp {
+    from {
+      transform: translateY(100%);
+    }
+    to {
+      transform: translateY(0);
+    }
+  }
+  
+  /* Manage scrolling on mobile */
+  .overflow-y-auto-mobile {
+    @apply overflow-y-auto md:overflow-visible;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Safe areas for devices with notches */
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0);
+}
+
+.pr-safe {
+  padding-right: env(safe-area-inset-right, 0);
+}
+
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.pl-safe {
+  padding-left: env(safe-area-inset-left, 0);
+}
+
+/* Touch improvements */
+.touch-button {
+  @apply p-3 md:p-2; /* Larger touch target on mobile */
+  touch-action: manipulation;
+}
+
+/* Improved focus styles for better accessibility */
+.focus-visible:focus-visible {
+  @apply outline-none ring-2 ring-blue-500;
+}
+
+/* General usability improvements */
+button, a, [role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+input, select, textarea {
+  font-size: 16px !important; /* Prevents iOS zoom on focus */
+}
+
+/* Fix for mobile modals */
+.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
+/* Custom scrollbar */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
   }
 
-  .text-shadow-lg {
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08);
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
   }
-<<<<<<< HEAD
 
   ::-webkit-scrollbar-thumb {
     background: #c1c1c1;
@@ -161,65 +204,4 @@
 .fade-exit-active {
   opacity: 0;
   transition: opacity 200ms;
-}
-
-/* Add these styles to your globals.css file */
-
-/* Default desktop styles */
-input, select, textarea, button {
-  font-size: 14px;
-}
-
-label {
-  font-size: 14px;
-}
-
-/* Mobile-specific overrides */
-body[data-device-type="mobile"] input,
-body[data-device-type="mobile"] select,
-body[data-device-type="mobile"] textarea,
-body[data-device-type="mobile"] button {
-  font-size: 16px; /* Better for touch */
-}
-
-body[data-device-type="mobile"] label {
-  font-size: 16px;
-}
-
-/* Remove mobile styling for desktop */
-@media (min-width: 768px) {
-  .mobile-device input, 
-  .mobile-device select, 
-  .mobile-device textarea {
-    font-size: 14px;
-  }
-  
-  /* Form layout adjustments */
-  .responsive-form-row {
-    display: flex;
-    gap: 1rem;
-  }
-  
-  .responsive-form-col {
-    flex: 1;
-  }
-}
-
-/* Better form focus styles for all devices */
-input:focus, 
-select:focus, 
-textarea:focus {
-  outline: none;
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3) !important;
-}
-
-/* Make sure forms aren't too small on desktop */
-@media (min-width: 1024px) {
-  .form-container {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-=======
->>>>>>> parent of 9a33e93 (updated for mobile responsive implementation)
 }
