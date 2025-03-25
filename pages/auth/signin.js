@@ -5,6 +5,10 @@ import Head from "next/head";
 import Link from "next/link";
 import { setupMobileViewport } from "@/utils/mobileViewport";
 import { ResponsiveInput } from "@/components/ResponsiveFormFields";
+import Image from "next/image";
+
+// App version information
+const APP_VERSION = "v4.1.0";
 
 export default function SignIn() {
   const router = useRouter();
@@ -135,7 +139,28 @@ export default function SignIn() {
           {!showForgotPassword ? (
             // Sign In Form
             <>
-              <h1 className="text-2xl font-bold mb-6 text-center">Sign In</h1>
+              <div className="flex flex-col items-center mb-6">
+                {/* App Logo */}
+                <div className="w-32 h-32 mb-4 relative">
+                  {/* Replace the src with the path to your logo image */}
+                  {/* Example: src="/images/your-logo.png" */}
+                  <Image 
+                    src="/images/conveylogo.png" 
+                    alt="Conveyancing Management App Logo"
+                    width={128}
+                    height={128}
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+                
+                <h1 className="text-2xl font-bold text-center">Sign In</h1>
+                
+                {/* Version number */}
+                <div className="text-xs text-gray-500 mt-1">
+                  Conveyancing Management App {APP_VERSION}
+                </div>
+              </div>
               
               {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
@@ -285,6 +310,13 @@ export default function SignIn() {
               )}
             </>
           )}
+          
+          {/* Version number in footer */}
+          <div className="mt-8 pt-4 border-t text-center">
+            <p className="text-xs text-gray-500">
+              © {new Date().getFullYear()} Conveyancing Management App {APP_VERSION}
+            </p>
+          </div>
         </div>
       </div>
     </>
