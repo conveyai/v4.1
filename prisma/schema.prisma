@@ -23,6 +23,7 @@ model Tenant {
   todos        Todo[]
   documents    Document[]
   auditLogs    MatterAuditLog[]
+  settings     TenantSettings?
 }
 
 model Conveyancer {
@@ -208,4 +209,16 @@ model TitleSearch {
   @@index([matterId])
   @@index([tenantId])
   @@index([orderId])
+}
+
+model TenantSettings {
+  id        String    @id @default(cuid())
+  tenantId  String    @unique
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  logoPath  String?
+  
+  // Additional settings can be added here
+  primaryColor String? // Example: "#4F46E5"
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
 }
