@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import { SessionProvider } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { setupMobileViewport } from "@/utils/mobileViewport";
+import { WallpaperProvider } from "@/utils/WallpaperContext";
 
 // Only import in non-production as validation only runs on the server
 const validateEnv = process.env.NODE_ENV !== 'production' 
@@ -39,9 +40,11 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }) {
 
   return (
     <SessionProvider session={session}>
-      <AppWrapper>
-        <Component {...pageProps} />
-      </AppWrapper>
+      <WallpaperProvider>
+        <AppWrapper>
+          <Component {...pageProps} />
+        </AppWrapper>
+      </WallpaperProvider>
     </SessionProvider>
   );
 }

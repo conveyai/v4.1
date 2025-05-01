@@ -4,11 +4,13 @@ import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import Sidebar from '@/components/Sidebar';
 import { Menu } from 'lucide-react';
+import { useWallpaper } from '@/utils/WallpaperContext';
 
 const ResponsiveLayout = ({ children, title = 'Conveyancing Management App' }) => {
   const { status } = useSession();
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { wallpaperUrl } = useWallpaper();
 
   // Redirect to sign-in page if not authenticated
   useEffect(() => {
@@ -34,7 +36,7 @@ const ResponsiveLayout = ({ children, title = 'Conveyancing Management App' }) =
     };
   }, [isMobileMenuOpen]);
 
-  if (status === 'loading') {
+  if (status === "loading") {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-100">
         <div className="text-center">
@@ -52,7 +54,7 @@ const ResponsiveLayout = ({ children, title = 'Conveyancing Management App' }) =
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </Head>
 
-      <div className="flex min-h-screen bg-gray-50">
+      <div className="flex min-h-screen">
         {/* Sidebar */}
         <Sidebar 
           isMobileMenuOpen={isMobileMenuOpen} 
@@ -60,22 +62,33 @@ const ResponsiveLayout = ({ children, title = 'Conveyancing Management App' }) =
         />
         
         {/* Main content */}
-        <div className="flex-1 flex flex-col overflow-x-hidden">
-          {/* Top bar (mobile) */}
-          <div className="md:hidden flex items-center justify-between py-3 px-4 border-b bg-white">
-            <div className="font-semibold text-lg">ConveyApp</div>
-            <button 
-              onClick={toggleMobileMenu}
-              className="p-2 rounded-md hover:bg-gray-100"
-            >
-              <Menu size={24} />
-            </button>
-          </div>
+        <div className="flex-1 flex flex-col overflow-x-hidden relative">
+          {/* Background wallpaper */}
+          {wallpaperUrl && (
+            <div
+              className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-10 transition-opacity duration-500"
+              style={{ backgroundImage: `url(${wallpaperUrl})` }}
+            />
+          )}
           
-          {/* Main content area */}
-          <main className="flex-1 px-4 py-6 md:px-8 overflow-y-auto">
-            {children}
-          </main>
+          {/* Content container with background */}
+          <div className={`flex-1 flex flex-col z-10 ${wallpaperUrl ? 'bg-gray-50 bg-opacity-80' : 'bg-gray-50'}`}>
+            {/* Top bar (mobile) */}
+            <div className="md:hidden flex items-center justify-between py-3 px-4 border-b bg-white">
+              <div className="font-semibold text-lg">ConveyApp</div>
+              <button 
+                onClick={toggleMobileMenu}
+                className="p-2 rounded-md hover:bg-gray-100"
+              >
+                <Menu size={24} />
+              </button>
+            </div>
+            
+            {/* Main content area */}
+            <main className="flex-1 px-4 py-6 md:px-8 overflow-y-auto">
+              {children}
+            </main>
+          </div>
         </div>
       </div>
     </>
