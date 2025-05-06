@@ -143,18 +143,27 @@ const handler = async (req, res) => {
       }
       
       // Update or create tenant settings
-      const tenantSettings = await prisma.tenantSettings.upsert({
-        where: { 
-          tenantId 
-        },
-        update: {
-          wallpaperPath: wallpaperUrl
-        },
-        create: {
-          tenantId,
-          wallpaperPath: wallpaperUrl
-        }
-      });
+      let tenantSettings;
+      
+      if (existingSettings) {
+        // Update existing settings
+        tenantSettings = await prisma.tenantSettings.update({
+          where: { 
+            tenantId 
+          },
+          data: {
+            wallpaperPath: wallpaperUrl
+          }
+        });
+      } else {
+        // Create new settings
+        tenantSettings = await prisma.tenantSettings.create({
+          data: {
+            tenantId,
+            wallpaperPath: wallpaperUrl
+          }
+        });
+      }
       
       return res.status(200).json({ 
         message: "Wallpaper uploaded successfully",
