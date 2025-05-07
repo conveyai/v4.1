@@ -217,7 +217,6 @@ model TenantSettings {
   tenant    Tenant    @relation(fields: [tenantId], references: [id])
   logoPath  String?
   wallpaperPath String? // New field for custom wallpaper background
-  
   // Additional settings can be added here
   primaryColor String? // Example: "#4F46E5"
   created_at DateTime @default(now())
